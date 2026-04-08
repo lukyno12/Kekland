@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medieval Arena RPG</title>
+    <title>Keksland: Bielo-čierna Legenda</title>
     <style>
-        /* CSS pre bielo-čierny Medieval štýl */
+        /* CELKOVÝ DIZAJN */
         body {
-            background-color: #f4f1ea; /* Farba starého papiera */
+            background-color: #f4f1ea;
             color: #1a1a1a;
             font-family: 'Courier New', Courier, monospace;
             display: flex;
@@ -15,111 +15,255 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            text-align: center;
         }
 
         #game-window {
-            width: 90%;
-            max-width: 600px;
+            width: 95%;
+            max-width: 500px;
             border: 4px solid #1a1a1a;
             background: white;
             padding: 20px;
-            box-shadow: 15px 15px 0px #1a1a1a;
+            box-shadow: 10px 10px 0px #1a1a1a;
+            text-align: center;
         }
 
         .hidden { display: none; }
 
-        /* Karty postáv */
-        .character-selection {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
+        /* MENU */
         .char-card {
             border: 2px solid #1a1a1a;
+            margin: 10px 0;
             padding: 10px;
             cursor: pointer;
             transition: 0.2s;
-            flex: 1;
         }
+        .char-card:hover { background: #1a1a1a; color: white; }
 
-        .char-card:hover {
-            background-color: #1a1a1a;
-            color: white;
+        /* MAPA */
+        #map-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin: 20px 0;
+            background: #eee;
+            padding: 5px;
+            border: 2px solid #1a1a1a;
         }
+        .tile {
+            aspect-ratio: 1;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            cursor: pointer;
+            font-size: 24px;
+        }
+        .player-tile { background: #1a1a1a !important; color: white; }
 
-        h1 { border-bottom: 3px solid #1a1a1a; padding-bottom: 10px; }
+        /* STATUS A LIŠTY */
+        .stats-bar {
+            background: #eee;
+            border: 2px solid #1a1a1a;
+            height: 15px;
+            margin: 5px 0;
+            position: relative;
+        }
+        .fill { background: #1a1a1a; height: 100%; transition: width 0.3s; }
         
+        /* BOJ A LOOT */
         button {
             background: #1a1a1a;
             color: white;
             border: none;
-            padding: 15px 25px;
+            padding: 12px;
+            width: 100%;
             cursor: pointer;
             font-weight: bold;
-            margin-top: 20px;
+            text-transform: uppercase;
+            margin-top: 10px;
         }
+        #battle-log {
+            height: 80px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            font-size: 12px;
+            margin: 10px 0;
+            padding: 5px;
+            text-align: left;
+        }
+        .rarity-legendary { color: #b8860b; font-weight: bold; border: 2px gold double; padding: 2px; }
     </style>
 </head>
 <body>
 
 <div id="game-window">
+    
     <div id="screen-menu">
-        <h1>MEDIEVAL ARENA</h1>
-        <p>Vyber si svoju postavu a vstúp do Arény Popola.</p>
-        
-        <div class="character-selection">
-            <div class="char-card" onclick="selectClass('Zlodej', 80, 12, 20)">
-                <h3>ZLODEJ</h3>
-                <p>Menej HP<br>Viac Lucku</p>
-            </div>
-            <div class="char-card" onclick="selectClass('Kráľ', 100, 10, 10)">
-                <h3>KRÁĽ</h3>
-                <p>Balans<br>Viac zlata</p>
-            </div>
-            <div class="char-card" onclick="selectClass('Rytier', 140, 8, 5)">
-                <h3>RYTIER</h3>
-                <p>Veľa HP<br>Silná obrana</p>
-            </div>
+        <h1>KEKSLAND</h1>
+        <p>Vyber hrdinu:</p>
+        <div class="char-card" onclick="start('Zlodej', 80, 12, 25)">
+            <h3>ZLODEJ</h3>
+            <p>HP: 80 | Luck: Vysoký</p>
+        </div>
+        <div class="char-card" onclick="start('Rytier', 150, 8, 5)">
+            <h3>RYTIER</h3>
+            <p>HP: 150 | Obrana: Vysoká</p>
         </div>
     </div>
 
     <div id="screen-map" class="hidden">
-        <h2>Mapa Sveta</h2>
-        <p id="player-status"></p>
-        <div id="map-grid">
-            [ TU BUDE PIRÁTSKA MAPA ]
+        <div id="top-ui">
+            <b id="p-class">Hrdina</b> | Stamina: <span id="p-stamina">100</span>
+            <div class="stats-bar"><div id="stamina-fill" class="fill" style="width: 100%"></div></div>
         </div>
-        <button onclick="location.reload()">Reset Hry</button>
+        
+        <div id="map-grid"></div>
+
+        <div id="inventory">
+            <p><b>Zbraň:</b> <span id="weapon-name">Pästné súboje</span> (+<span id="weapon-atk">0</span> ATK)</p>
+            <p><b>HP:</b> <span id="p-hp">100</span> / <span id="p-max-hp">100</span></p>
+        </div>
     </div>
+
+    <div id="screen-battle" class="hidden">
+        <h2 id="m-name">Monštrum</h2>
+        <div style="font-size: 50px;">💀</div>
+        <div class="stats-bar"><div id="m-hp-fill" class="fill"></div></div>
+        
+        <div id="battle-log"></div>
+        
+        <button onclick="attack()">ZAÚTOČIŤ</button>
+    </div>
+
+    <div id="screen-loot" class="hidden">
+        <h2>KORISŤ NÁJDENÁ!</h2>
+        <div style="font-size: 60px;">🎁</div>
+        <p id="loot-info"></p>
+        <button onclick="showMap()">POKRAČOVAŤ V CESTE</button>
+    </div>
+
 </div>
 
 <script>
-    // Logika hry
-    let player = {
-        class: "",
-        hp: 0,
-        atk: 0,
-        luck: 0,
-        stamina: 100
-    };
+    // PREMENNÉ HRY
+    let player = { class: "", hp: 100, maxHp: 100, atk: 10, luck: 0, stamina: 100, weaponAtk: 0 };
+    let monster = { name: "", hp: 0, maxHp: 0, atk: 0 };
+    let playerPos = { x: 2, y: 2 };
 
-    function selectClass(name, hp, atk, luck) {
-        player.class = name;
+    // ŠTART HRY
+    function start(cls, hp, atk, luck) {
+        player.class = cls;
         player.hp = hp;
+        player.maxHp = hp;
         player.atk = atk;
         player.luck = luck;
-
+        
         document.getElementById('screen-menu').classList.add('hidden');
         document.getElementById('screen-map').classList.remove('hidden');
-        
-        document.getElementById('player-status').innerText = 
-            `Postava: ${player.class} | HP: ${player.hp} | Stamina: ${player.stamina}%`;
-        
-        console.log("Hra začala za: ", player);
+        updateUI();
+        drawMap();
     }
+
+    // MAPA
+    function drawMap() {
+        const grid = document.getElementById('map-grid');
+        grid.innerHTML = '';
+        for (let y = 0; y < 5; y++) {
+            for (let x = 0; x < 5; x++) {
+                const tile = document.createElement('div');
+                tile.className = 'tile' + (x === playerPos.x && y === playerPos.y ? ' player-tile' : '');
+                tile.innerText = (x === playerPos.x && y === playerPos.y ? '👤' : '?');
+                tile.onclick = () => move(x, y);
+                grid.appendChild(tile);
+            }
+        }
+    }
+
+    function move(x, y) {
+        let dist = Math.abs(x - playerPos.x) + Math.abs(y - playerPos.y);
+        if (dist === 1 && player.stamina >= 10) {
+            player.stamina -= 10;
+            playerPos.x = x;
+            playerPos.y = y;
+            updateUI();
+            drawMap();
+            if (Math.random() < 0.4) startBattle();
+        }
+    }
+
+    // SÚBOJ
+    function startBattle() {
+        const list = [
+            { n: "Pavúk", h: 30, a: 5 },
+            { n: "Zlodej tieňov", h: 50, a: 10 },
+            { n: "Kostlivec", h: 40, a: 8 }
+        ];
+        let m = list[Math.floor(Math.random() * list.length)];
+        monster = { name: m.n, hp: m.h, maxHp: m.h, atk: m.a };
+        
+        document.getElementById('m-name').innerText = monster.name;
+        document.getElementById('battle-log').innerHTML = "Boj sa začal!<br>";
+        showScreen('screen-battle');
+        updateBattleUI();
+    }
+
+    function attack() {
+        let pDmg = player.atk + player.weaponAtk + Math.floor(Math.random() * 5);
+        monster.hp -= pDmg;
+        log(`Udelil si ${pDmg} poškodenia.`);
+
+        if (monster.hp <= 0) return win();
+
+        let mDmg = monster.atk + Math.floor(Math.random() * 3);
+        player.hp -= mDmg;
+        log(`${monster.name} ti ubral ${mDmg} HP.`);
+
+        if (player.hp <= 0) { alert("Zomrel si!"); location.reload(); }
+        updateUI();
+        updateBattleUI();
+    }
+
+    // LOOT
+    function win() {
+        const roll = Math.random() * 100 + player.luck;
+        let item = "Starý nôž"; let bonus = 3; let rarity = "Bežné";
+        
+        if (roll > 110) { item = "Legendárny meč Kekslandu"; bonus = 25; rarity = "LEGENDÁRNE"; }
+        else if (roll > 85) { item = "Oceľový sekáč"; bonus = 12; rarity = "Epické"; }
+        
+        player.weaponAtk = bonus;
+        document.getElementById('weapon-name').innerText = item;
+        document.getElementById('weapon-atk').innerText = bonus;
+        document.getElementById('loot-info').innerHTML = `Našiel si: <b class="rarity-legendary">${rarity}</b><br>${item}`;
+        showScreen('screen-loot');
+    }
+
+    // POMOCNÉ FUNKCIE
+    function updateUI() {
+        document.getElementById('p-class').innerText = player.class;
+        document.getElementById('p-hp').innerText = player.hp;
+        document.getElementById('p-max-hp').innerText = player.maxHp;
+        document.getElementById('p-stamina').innerText = player.stamina;
+        document.getElementById('stamina-fill').style.width = player.stamina + "%";
+    }
+
+    function updateBattleUI() {
+        document.getElementById('m-hp-fill').style.width = (monster.hp / monster.maxHp * 100) + "%";
+    }
+
+    function log(msg) {
+        const l = document.getElementById('battle-log');
+        l.innerHTML += msg + "<br>";
+        l.scrollTop = l.scrollHeight;
+    }
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen-menu, #screen-map, #screen-battle, #screen-loot').forEach(s => s.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function showMap() { showScreen('screen-map'); }
 </script>
 
 </body>
