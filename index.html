@@ -3,286 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keksland: Orna Style RPG</title>
+    <title>Keksland: Grafická Legenda</title>
     <style>
         :root {
-            --bg: #ffffff;
-            --text: #000000;
-            --border: 3px solid #000;
+            --pixel-size: 4px;
+            --font: 'Courier New', monospace;
         }
 
-        body {
-            background: #f0f0f0;
-            color: var(--text);
-            font-family: 'Courier New', monospace;
-            margin: 0;
-            display: flex;
-            justify-content: center;
+        body { background: #333; color: #000; font-family: var(--font); margin: 0; overflow: hidden; }
+
+        /* HERNÉ OKNO */
+        #game-viewport {
+            width: 100vw; height: 100vh;
+            display: flex; flex-direction: column;
+            background: #fff; max-width: 500px; margin: 0 auto;
+            border: 5px solid #000; box-sizing: border-box;
         }
 
-        #game-container {
-            width: 100%;
-            max-width: 450px;
-            background: var(--bg);
-            min-height: 100vh;
-            border-left: var(--border);
-            border-right: var(--border);
-            display: flex;
-            flex-direction: column;
+        /* MAPA S TERÉNOM */
+        #map-container {
+            flex-grow: 1; position: relative;
+            background-color: #eee; /* Miesto pre trávu */
+            overflow: hidden;
         }
 
-        .screen { display: none; padding: 20px; flex-direction: column; height: 100%; }
+        .tile {
+            position: absolute; width: 50px; height: 50px;
+            image-rendering: pixelated; /* Pre ostré pixel-art obrázky */
+            background-size: cover;
+        }
+
+        /* SKIN POSTAVY A MONŠTIER */
+        .sprite {
+            position: absolute; width: 48px; height: 48px;
+            z-index: 10; transition: all 0.2s ease;
+            image-rendering: pixelated;
+        }
+
+        .shake { animation: shake 0.3s; }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px); }
+            20% { transform: translate(-3px, 0px); }
+            40% { transform: translate(3px, 2px); }
+            100% { transform: translate(0px, 0px); }
+        }
+
+        /* BOJOVÁ OBRAZOVKA */
+        .screen { display: none; height: 100%; flex-direction: column; padding: 20px; box-sizing: border-box; }
         .active { display: flex; }
 
-        /* HEADER STATS */
-        #header {
-            border-bottom: var(--border);
-            padding: 10px;
-            background: #000;
-            color: #fff;
-            font-size: 0.8em;
-            display: flex;
-            justify-content: space-between;
-        }
+        #battle-view { background: #fff; text-align: center; }
+        .monster-render { width: 150px; height: 150px; margin: 20px auto; }
 
-        /* MAPA */
-        #map-area {
-            position: relative;
-            flex-grow: 1;
-            background-image: radial-gradient(#ccc 1px, transparent 1px);
-            background-size: 40px 40px;
-            overflow: hidden;
-            border-bottom: var(--border);
-        }
-
-        .entity {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        #player {
-            background: #000;
-            color: #fff;
-            border-radius: 50%;
-            z-index: 10;
-        }
-
-        /* BOJ */
-        .hp-container {
-            width: 100%;
-            border: 2px solid #000;
-            height: 15px;
-            margin: 10px 0;
-        }
-        .hp-bar { background: #000; height: 100%; width: 100%; transition: 0.3s; }
+        /* UI PRVKY */
+        .stats-panel { background: #000; color: #fff; padding: 10px; display: flex; justify-content: space-between; }
+        .hp-bar-container { border: 3px solid #000; height: 20px; background: #ddd; margin: 10px 0; }
+        .hp-fill { background: #000; height: 100%; width: 100%; transition: 0.4s; }
         
-        .btn {
-            background: #000;
-            color: #fff;
-            border: none;
-            padding: 15px;
-            margin: 5px 0;
-            cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .btn:disabled { background: #ccc; }
-
-        #log {
-            font-size: 0.7em;
-            height: 100px;
-            overflow-y: auto;
-            border: 1px solid #000;
-            padding: 5px;
-            margin-top: 10px;
-        }
-
-        /* INVENTÁR */
-        .item-card {
-            border: 1px solid #000;
-            margin: 5px 0;
-            padding: 5px;
-            font-size: 0.9em;
+        button {
+            background: #000; color: #fff; border: none; padding: 15px; 
+            margin: 5px; cursor: pointer; font-weight: bold; font-family: var(--font);
         }
     </style>
 </head>
 <body>
 
-<div id="game-container">
-    <div id="header">
-        <span id="stat-lv">LVL: 1</span>
-        <span id="stat-hp">HP: 100/100</span>
-        <span id="stat-xp">XP: 0/50</span>
+<div id="game-viewport">
+    <div class="stats-panel">
+        <div>LV: <span id="ui-lvl">1</span></div>
+        <div style="flex-grow:1; margin: 0 20px;">
+            HP: <span id="ui-hp">100</span>
+            <div class="hp-bar-container"><div id="ui-hp-fill" class="hp-fill"></div></div>
+        </div>
+        <div>💰: <span id="ui-gold">0</span></div>
     </div>
 
     <div id="screen-map" class="screen active">
-        <div id="map-area">
-            <div id="player" class="entity" style="left: 200px; top: 200px;">⚔️</div>
+        <div id="map-container">
             </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 10px;">
-            <button class="btn" onclick="move('up')">HORE</button>
-            <button class="btn" onclick="move('down')">DOLE</button>
-            <button class="btn" onclick="move('left')">VĽAVO</button>
-            <button class="btn" onclick="move('right')">VPRAVO</button>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; padding: 10px;">
+            <div></div><button onclick="move(0, -50)">HORE</button><div></div>
+            <button onclick="move(-50, 0)">VĽAVO</button>
+            <button onclick="move(0, 50)">DOLE</button>
+            <button onclick="move(50, 0)">VPRAVO</button>
         </div>
     </div>
 
     <div id="screen-battle" class="screen">
-        <h2 id="enemy-name">Nepriateľ</h2>
-        <div id="enemy-visual" style="font-size: 80px; text-align: center;">💀</div>
-        <div class="hp-container"><div id="enemy-hp-bar" class="hp-bar"></div></div>
+        <h2 id="battle-monster-name">PRÍŠERA</h2>
+        <img id="battle-monster-img" class="monster-render" src="" alt="monster">
+        <div class="hp-bar-container"><div id="battle-monster-hp" class="hp-fill"></div></div>
         
-        <button class="btn" onclick="battleTurn('attack')">Fyzický Útok</button>
-        <button class="btn" onclick="battleTurn('skill')">Zručnosť (Stamina)</button>
-        
-        <div id="log"></div>
-    </div>
-
-    <div id="screen-loot" class="screen">
-        <h1>VÍŤAZSTVO!</h1>
-        <p id="loot-text"></p>
-        <button class="btn" onclick="closeLoot()">Späť na mapu</button>
+        <div style="display: grid; grid-template-columns: 1fr 1fr;">
+            <button onclick="fightAction('atk')">MEČ</button>
+            <button onclick="fightAction('mag')">MÁGIA</button>
+        </div>
+        <div id="battle-log" style="font-size: 12px; margin-top: 10px; border: 1px solid #000; height: 60px; overflow: auto;"></div>
     </div>
 </div>
 
 <script>
-    // --- DATA ---
-    const state = {
-        player: {
-            lvl: 1, hp: 100, maxHp: 100, xp: 0, nextXp: 50,
-            atk: 10, def: 5, x: 200, y: 200, stamina: 100,
-            weapon: { name: "Tupý meč", atk: 2 }
-        },
-        enemy: null,
-        entities: []
+    // --- KONFIGURÁCIA GRAFIKY (Tu zmeň názvy na svoje súbory na GitHube) ---
+    const ASSETS = {
+        player: 'hero_skin.png',       // Tvoj skin hrdinu
+        grass: 'grass_tile.png',      // Obrázok trávy
+        monster1: 'vlk.png',          // Skin monštra 1
+        monster2: 'drak.png',         // Skin monštra 2
+        placeholder: 'https://via.placeholder.com/50/000/fff?text=X' // Ak nemáš obrázok
     };
 
-    const monsters = [
-        { name: "Divoký pes", hp: 30, atk: 5, xp: 20, icon: "🐕" },
-        { name: "Zatúlaný tieň", hp: 50, atk: 8, xp: 45, icon: "👤" },
-        { name: "Temný Orna-Rytier", hp: 100, atk: 15, xp: 150, icon: "🛡️" }
-    ];
+    const state = {
+        p: { x: 150, y: 150, hp: 100, mHp: 100, lvl: 1, gold: 0, atk: 10 },
+        enemy: null
+    };
 
-    // --- LOGIKA MAPY ---
+    // --- INICIALIZÁCIA MAPY ---
+    function initMap() {
+        const container = document.getElementById('map-container');
+        container.innerHTML = '';
+
+        // 1. Vygeneruj terén (pozadie)
+        for (let i = 0; i < 100; i++) {
+            const tile = document.createElement('div');
+            tile.className = 'tile';
+            // tile.style.backgroundImage = `url(${ASSETS.grass})`; // ODOKOMENTUJ KEĎ BUDEŠ MAŤ OBRÁZOK
+            tile.style.left = (i % 10) * 50 + 'px';
+            tile.style.top = Math.floor(i / 10) * 50 + 'px';
+            tile.style.border = "0.1px solid #ddd"; // Pomocná mriežka
+            container.appendChild(tile);
+        }
+
+        // 2. Pridaj hrdinu
+        const hero = document.createElement('img');
+        hero.id = 'player-sprite';
+        hero.className = 'sprite';
+        hero.src = ASSETS.player;
+        hero.onerror = function() { this.src = ASSETS.placeholder; }; // Ak nenájde súbor, dá X
+        hero.style.left = state.p.x + 'px';
+        hero.style.top = state.p.y + 'px';
+        container.appendChild(hero);
+
+        spawnMonsters();
+    }
+
     function spawnMonsters() {
-        const area = document.getElementById('map-area');
-        // Vymazať staré okrem hráča
-        document.querySelectorAll('.monster').forEach(m => m.remove());
-        
-        for(let i=0; i<4; i++) {
-            let mData = monsters[Math.floor(Math.random() * monsters.length)];
-            let x = Math.floor(Math.random() * 350);
-            let y = Math.floor(Math.random() * 350);
-            
-            let div = document.createElement('div');
-            div.className = 'entity monster';
-            div.style.left = x + 'px';
-            div.style.top = y + 'px';
-            div.innerText = mData.icon;
-            div.onclick = () => startBattle(mData);
-            area.appendChild(div);
+        for(let i=0; i<3; i++) {
+            const m = document.createElement('img');
+            m.className = 'sprite monster-map';
+            m.src = ASSETS.monster1;
+            m.onerror = function() { this.src = ASSETS.placeholder; };
+            m.style.left = Math.floor(Math.random()*7)*50 + 'px';
+            m.style.top = Math.floor(Math.random()*7)*50 + 'px';
+            m.onclick = () => startBattle();
+            document.getElementById('map-container').appendChild(m);
         }
     }
 
-    function move(dir) {
-        const step = 40;
-        if(dir === 'up') state.player.y -= step;
-        if(dir === 'down') state.player.y += step;
-        if(dir === 'left') state.player.x -= step;
-        if(dir === 'right') state.player.x += step;
+    // --- POHYB ---
+    function move(dx, dy) {
+        state.p.x = Math.max(0, Math.min(350, state.p.x + dx));
+        state.p.y = Math.max(0, Math.min(350, state.p.y + dy));
         
-        // Hranice mapy
-        state.player.x = Math.max(0, Math.min(360, state.player.x));
-        state.player.y = Math.max(0, Math.min(360, state.player.y));
-
-        const p = document.getElementById('player');
-        p.style.left = state.player.x + 'px';
-        p.style.top = state.player.y + 'px';
-
-        // Šanca na respawn príšer pri pohybe
-        if(Math.random() < 0.2) spawnMonsters();
+        const s = document.getElementById('player-sprite');
+        s.style.left = state.p.x + 'px';
+        s.style.top = state.p.y + 'px';
+        
+        if(Math.random() < 0.1) startBattle();
     }
 
-    // --- LOGIKA BOJA ---
-    function startBattle(m) {
-        state.enemy = { ...m, maxHp: m.hp };
-        document.getElementById('enemy-name').innerText = state.enemy.name;
-        document.getElementById('enemy-visual').innerText = state.enemy.icon;
-        document.getElementById('log').innerHTML = "Boj začal!";
+    // --- BOJOVÝ SYSTÉM ---
+    function startBattle() {
+        state.enemy = { name: "DIVOKÝ VLK", hp: 50, mHp: 50, atk: 8, img: ASSETS.monster1 };
+        document.getElementById('battle-monster-img').src = state.enemy.img;
+        document.getElementById('battle-monster-name').innerText = state.enemy.name;
+        
         switchScreen('screen-battle');
         updateUI();
     }
 
-    function battleTurn(type) {
-        // Hráč útočí
-        let dmg = state.player.atk + state.player.weapon.atk;
-        if(type === 'skill') dmg = Math.floor(dmg * 1.5);
-        
+    function fightAction(type) {
+        // Útok hráča
+        const dmg = state.p.atk + Math.floor(Math.random()*5);
         state.enemy.hp -= dmg;
-        addLog(`Udelil si ${dmg} poškodenia.`);
+        document.getElementById('battle-monster-img').classList.add('shake');
+        setTimeout(() => document.getElementById('battle-monster-img').classList.remove('shake'), 300);
 
-        if(state.enemy.hp <= 0) return win();
+        if(state.enemy.hp <= 0) {
+            alert("VÍŤAZSTVO!");
+            state.p.gold += 20;
+            switchScreen('screen-map');
+            initMap();
+            return;
+        }
 
-        // Príšera útočí
-        let eDmg = Math.max(1, state.enemy.atk - Math.floor(state.player.def/2));
-        state.player.hp -= eDmg;
-        addLog(`${state.enemy.name} ti ubral ${eDmg} HP.`);
+        // Útok monštra
+        state.p.hp -= state.enemy.atk;
+        updateUI();
 
-        if(state.player.hp <= 0) {
-            alert("Koniec hry! Tvoja postava padla.");
+        if(state.p.hp <= 0) {
+            alert("ZOMREL SI!");
             location.reload();
         }
-        updateUI();
     }
 
-    function win() {
-        let gainedXp = state.enemy.xp;
-        state.player.xp += gainedXp;
-        
-        document.getElementById('loot-text').innerText = `Získal si ${gainedXp} XP!`;
-        
-        if(state.player.xp >= state.player.nextXp) {
-            levelUp();
-        }
-
-        switchScreen('screen-loot');
-        updateUI();
-    }
-
-    function levelUp() {
-        state.player.lvl++;
-        state.player.xp = 0;
-        state.player.nextXp += 50;
-        state.player.maxHp += 20;
-        state.player.hp = state.player.maxHp;
-        state.player.atk += 5;
-        state.player.def += 2;
-        alert(`LEVEL UP! Teraz si Level ${state.player.lvl}`);
-    }
-
-    // --- POMOCNÉ FUNKCIE ---
+    // --- POMOCNÉ ---
     function updateUI() {
-        document.getElementById('stat-lv').innerText = `LVL: ${state.player.lvl}`;
-        document.getElementById('stat-hp').innerText = `HP: ${state.player.hp}/${state.player.maxHp}`;
-        document.getElementById('stat-xp').innerText = `XP: ${state.player.xp}/${state.player.nextXp}`;
-        
+        document.getElementById('ui-hp').innerText = state.p.hp;
+        document.getElementById('ui-hp-fill').style.width = (state.p.hp / state.p.mHp * 100) + "%";
+        document.getElementById('ui-gold').innerText = state.p.gold;
         if(state.enemy) {
-            let pct = (state.enemy.hp / state.enemy.maxHp) * 100;
-            document.getElementById('enemy-hp-bar').style.width = pct + "%";
+            document.getElementById('battle-monster-hp').style.width = (state.enemy.hp / state.enemy.mHp * 100) + "%";
         }
-    }
-
-    function addLog(msg) {
-        const l = document.getElementById('log');
-        l.innerHTML = msg + "<br>" + l.innerHTML;
     }
 
     function switchScreen(id) {
@@ -290,15 +221,11 @@
         document.getElementById(id).classList.add('active');
     }
 
-    function closeLoot() {
-        switchScreen('screen-map');
-        spawnMonsters();
-    }
-
     // Štart
-    spawnMonsters();
+    initMap();
     updateUI();
 </script>
 
 </body>
 </html>
+
