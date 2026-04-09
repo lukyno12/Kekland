@@ -8,557 +8,1675 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
-  --bg:#0d0a06;--bg2:#13100a;--card:#1e1912;--card2:#252015;
+  --bg:#0d0a06;--card:#1e1912;--card2:#252015;
   --border:rgba(245,200,66,0.13);--border2:rgba(245,200,66,0.28);
-  --gold:#f5c842;--gold2:#d4900a;--gold3:#ffe599;
-  --orange:#ff8c00;--orange2:#ffb347;--brown:#c87020;--cream:#fff4d6;
-  --red:#ff4040;--mint:#3de88a;--sky:#38c8ff;--purple:#b97bff;
+  --gold:#f5c842;--gold2:#d4900a;--orange:#ff8c00;--orange2:#ffb347;
+  --red:#ff4040;--mint:#3de88a;--sky:#38c8ff;--purple:#b97bff;--cream:#fff4d6;
 }
-html,body{width:100%;height:100%;overflow:hidden;}
-body{background:var(--bg);font-family:'Nunito',sans-serif;color:var(--cream);user-select:none;}
-canvas{display:block;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);}
+body{font-family:'Nunito',sans-serif;color:var(--cream);user-select:none;}
 #wrap{position:relative;width:100vw;height:100vh;}
-#bgCanvas{position:absolute;inset:0;z-index:0;}
-#gameCanvas{position:absolute;inset:0;z-index:1;}
+#bgCv{position:absolute;inset:0;z-index:0;}
+#gCv{position:absolute;inset:0;z-index:1;}
+
+/* SCREENS */
 .screen{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .screen.hidden{display:none!important;}
 
 /* ── MENU ── */
-#menuScreen{background:radial-gradient(ellipse at 50% -5%,#261a00 0%,#0d0a06 55%);}
-#menuScreen::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);
-  width:700px;height:280px;background:radial-gradient(ellipse,rgba(245,200,66,0.15) 0%,transparent 70%);pointer-events:none;}
-.menu-specks{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
-.speck{position:absolute;border-radius:50%;animation:speckFloat linear infinite;opacity:0;}
-@keyframes speckFloat{0%{opacity:0;transform:translateY(0);}10%{opacity:.7;}90%{opacity:.2;}100%{opacity:0;transform:translateY(-110vh);}}
-.logo-wrap{text-align:center;margin-bottom:1.1rem;position:relative;}
-.logo-icon{font-size:clamp(2.2rem,6vw,3.5rem);display:inline-block;animation:lb 3s ease-in-out infinite;filter:drop-shadow(0 0 16px #f5c842aa);}
-@keyframes lb{0%,100%{transform:translateY(0) rotate(-6deg);}50%{transform:translateY(-10px) rotate(6deg);}}
-.logo-main{font-family:'Fredoka One',cursive;font-size:clamp(3rem,10vw,6rem);color:var(--gold);
-  text-shadow:0 4px 0 var(--gold2),0 0 30px rgba(245,200,66,0.4);letter-spacing:.06em;line-height:1;}
-.logo-tagline{font-size:clamp(.55rem,1.5vw,.75rem);letter-spacing:.35em;color:rgba(245,200,66,.4);text-transform:uppercase;margin-top:.1rem;}
-.made-by{font-size:.68rem;letter-spacing:.12em;color:rgba(255,244,214,.28);margin-top:.3rem;font-weight:700;text-transform:uppercase;}
-.menu-coins-pill{display:flex;align-items:center;gap:.5rem;background:var(--card);border:1.5px solid var(--border2);
-  border-radius:50px;padding:.38rem 1.1rem;box-shadow:0 2px 18px rgba(0,0,0,.45);margin-bottom:1.3rem;}
-.menu-coins-pill .ca{font-family:'Fredoka One';font-size:1.05rem;color:var(--gold);}
-.menu-coins-pill .cl{font-size:.65rem;letter-spacing:.12em;color:rgba(245,200,66,.4);}
-.menu-btns{display:flex;flex-direction:column;gap:.5rem;align-items:center;width:100%;max-width:280px;}
-.kbtn{font-family:'Fredoka One',cursive;font-size:1rem;letter-spacing:.06em;padding:.7em 0;
-  border:none;border-radius:14px;cursor:pointer;width:100%;position:relative;overflow:hidden;
-  transition:transform .1s,box-shadow .15s,filter .15s;border:1.5px solid rgba(255,255,255,.05);}
+#menuSc{background:radial-gradient(ellipse at 50% -10%,#261a00 0%,#0d0a06 55%);}
+#menuSc::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);
+  width:600px;height:240px;background:radial-gradient(ellipse,rgba(245,200,66,0.14) 0%,transparent 70%);pointer-events:none;}
+.specks{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.speck{position:absolute;border-radius:50%;animation:speckUp linear infinite;opacity:0;}
+@keyframes speckUp{0%{opacity:0;transform:translateY(0);}10%{opacity:.7;}90%{opacity:.2;}100%{opacity:0;transform:translateY(-105vh);}}
+
+.logo-icon{font-size:clamp(2rem,5vw,3.2rem);display:inline-block;
+  animation:lbounce 3s ease-in-out infinite;filter:drop-shadow(0 0 14px #f5c842aa);}
+@keyframes lbounce{0%,100%{transform:translateY(0)rotate(-5deg);}50%{transform:translateY(-8px)rotate(5deg);}}
+.logo{font-family:'Fredoka One',cursive;font-size:clamp(2.8rem,9vw,5.5rem);color:var(--gold);
+  text-shadow:0 4px 0 var(--gold2),0 0 28px rgba(245,200,66,.4);letter-spacing:.06em;line-height:1;text-align:center;}
+.logo-sub{font-size:clamp(.5rem,1.4vw,.72rem);letter-spacing:.35em;color:rgba(245,200,66,.38);
+  text-transform:uppercase;text-align:center;}
+.made-by{font-size:.65rem;letter-spacing:.12em;color:rgba(255,244,214,.25);font-weight:700;
+  text-transform:uppercase;text-align:center;margin-bottom:1rem;}
+
+.coins-pill{display:flex;align-items:center;gap:.5rem;background:var(--card);border:1.5px solid var(--border2);
+  border-radius:50px;padding:.35rem 1rem;margin-bottom:1.1rem;}
+.coins-pill .ca{font-family:'Fredoka One';font-size:1rem;color:var(--gold);}
+.coins-pill .cl{font-size:.62rem;letter-spacing:.12em;color:rgba(245,200,66,.4);}
+
+.menu-btns{display:flex;flex-direction:column;gap:.45rem;align-items:center;width:100%;max-width:270px;}
+.kbtn{font-family:'Fredoka One',cursive;font-size:.98rem;letter-spacing:.05em;padding:.68em 0;
+  border:none;border-radius:13px;cursor:pointer;width:100%;position:relative;overflow:hidden;
+  transition:transform .1s,filter .15s;border:1.5px solid rgba(255,255,255,.05);}
 .kbtn:active{transform:scale(.97);}
 .kbtn::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.07) 0%,transparent 55%);pointer-events:none;border-radius:inherit;}
-.kbtn.gold{background:linear-gradient(135deg,#f5c842,#c87800);color:#1a0f00;box-shadow:0 4px 22px rgba(245,200,66,.35),0 1px 0 rgba(255,255,255,.12) inset;}
-.kbtn.gold:hover{filter:brightness(1.1);box-shadow:0 6px 30px rgba(245,200,66,.55);}
-.kbtn.dark{background:var(--card2);color:var(--gold);box-shadow:0 2px 10px rgba(0,0,0,.4);border-color:var(--border2);}
-.kbtn.dark:hover{background:var(--card);box-shadow:0 2px 18px rgba(245,200,66,.18);}
-.kbtn.dk-ora{background:var(--card2);color:var(--orange2);box-shadow:0 2px 10px rgba(0,0,0,.4);border-color:rgba(255,140,0,.2);}
-.kbtn.dk-ora:hover{box-shadow:0 2px 18px rgba(255,140,0,.2);}
-.kbtn.dk-mint{background:var(--card2);color:var(--mint);box-shadow:0 2px 10px rgba(0,0,0,.4);border-color:rgba(61,232,138,.2);}
-.kbtn.dk-mint:hover{box-shadow:0 2px 18px rgba(61,232,138,.2);}
+.kbtn.gold{background:linear-gradient(135deg,#f5c842,#c87800);color:#1a0f00;box-shadow:0 4px 20px rgba(245,200,66,.3);}
+.kbtn.gold:hover{filter:brightness(1.1);}
+.kbtn.dark{background:var(--card2);color:var(--gold);border-color:var(--border2);}
+.kbtn.dark:hover{background:var(--card);}
+.kbtn.dk-o{background:var(--card2);color:var(--orange2);border-color:rgba(255,140,0,.2);}
+.kbtn.dk-m{background:var(--card2);color:var(--mint);border-color:rgba(61,232,138,.2);}
+.kbtn.dk-p{background:var(--card2);color:var(--purple);border-color:rgba(185,123,255,.2);}
 
-/* ── SECTION SCREENS ── */
-#shopScreen,#medalsScreen,#lbScreen{background:radial-gradient(ellipse at 50% 0%,#1f1500 0%,var(--bg) 60%);}
-.sec-title{font-family:'Fredoka One';font-size:2rem;color:var(--gold);text-shadow:0 0 20px rgba(245,200,66,.4);letter-spacing:.06em;margin-bottom:.2rem;}
-.sec-sub{font-size:.65rem;letter-spacing:.3em;color:rgba(245,200,66,.35);text-transform:uppercase;margin-bottom:.9rem;}
-.shop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;max-width:480px;width:90%;margin-bottom:1.1rem;}
-.skin-card{background:var(--card);border:1.5px solid var(--border);border-radius:15px;padding:.75rem .4rem .6rem;
-  cursor:pointer;transition:transform .15s,border-color .2s,box-shadow .2s;
-  display:flex;flex-direction:column;align-items:center;gap:.3rem;box-shadow:0 4px 16px rgba(0,0,0,.4);}
-.skin-card:hover{transform:translateY(-3px);border-color:var(--border2);}
+/* ── LEVEL SELECT ── */
+#levelSc{background:radial-gradient(ellipse at 50% 0%,#1f1500 0%,var(--bg) 60%);}
+.sec-title{font-family:'Fredoka One';font-size:1.9rem;color:var(--gold);
+  text-shadow:0 0 18px rgba(245,200,66,.4);letter-spacing:.06em;margin-bottom:.2rem;text-align:center;}
+.sec-sub{font-size:.62rem;letter-spacing:.28em;color:rgba(245,200,66,.35);
+  text-transform:uppercase;margin-bottom:.9rem;text-align:center;}
+.level-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.55rem;
+  max-width:480px;width:92%;margin-bottom:.9rem;}
+.lvl-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;
+  padding:.7rem .3rem .6rem;cursor:pointer;transition:transform .15s,border-color .2s,box-shadow .2s;
+  display:flex;flex-direction:column;align-items:center;gap:.25rem;
+  box-shadow:0 3px 12px rgba(0,0,0,.4);}
+.lvl-card:hover:not(.locked){transform:translateY(-3px);border-color:var(--border2);}
+.lvl-card.locked{opacity:.35;cursor:not-allowed;}
+.lvl-card.done{border-color:rgba(61,232,138,.4);box-shadow:0 0 10px rgba(61,232,138,.12);}
+.lvl-card.selected{border-color:var(--gold);box-shadow:0 0 14px rgba(245,200,66,.3);}
+.lvl-num{font-family:'Fredoka One';font-size:1.3rem;color:var(--gold);}
+.lvl-name{font-size:.58rem;letter-spacing:.05em;color:rgba(255,244,214,.5);text-align:center;line-height:1.3;}
+.lvl-stars{font-size:.7rem;}
+.lvl-card.random-card{border-color:rgba(185,123,255,.3);background:rgba(185,123,255,.06);}
+.lvl-card.random-card .lvl-num{color:var(--purple);}
+
+/* ── SHOP ── */
+#shopSc{background:radial-gradient(ellipse at 50% 0%,#1f1500 0%,var(--bg) 60%);}
+.shop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;max-width:480px;width:90%;margin-bottom:1rem;}
+.skin-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:.7rem .4rem .6rem;
+  cursor:pointer;transition:transform .15s,border-color .2s;display:flex;flex-direction:column;align-items:center;gap:.3rem;}
+.skin-card:hover{transform:translateY(-3px);}
 .skin-card.owned{border-color:rgba(61,232,138,.35);}
-.skin-card.selected{border-color:var(--gold);box-shadow:0 0 16px rgba(245,200,66,.3);}
-.skin-card canvas{width:48px;height:48px;}
-.skin-card .sn{font-family:'Fredoka One';font-size:.72rem;color:var(--cream);}
-.skin-card .sp{font-family:'Fredoka One';font-size:.67rem;color:var(--gold2);}
-.skin-card .so{font-family:'Fredoka One';font-size:.65rem;color:var(--mint);}
-.medals-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem;
-  max-width:460px;width:90%;margin-bottom:1.1rem;max-height:55vh;overflow-y:auto;}
-.medals-grid::-webkit-scrollbar{width:3px;}
-.medals-grid::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
-.medal-card{background:var(--card);border:1.5px solid var(--border);border-radius:13px;padding:.65rem .35rem;
-  display:flex;flex-direction:column;align-items:center;gap:.22rem;box-shadow:0 3px 10px rgba(0,0,0,.35);}
-.medal-card.unlocked{border-color:rgba(245,200,66,.3);box-shadow:0 0 10px rgba(245,200,66,.1);}
-.medal-card.locked{filter:brightness(.35);}
-.medal-card .mi{font-size:1.6rem;}
-.medal-card .mn{font-family:'Fredoka One';font-size:.65rem;color:var(--gold);text-align:center;}
-.medal-card .md{font-size:.52rem;color:rgba(255,244,214,.32);text-align:center;line-height:1.3;}
-.lb-list{width:90%;max-width:340px;display:flex;flex-direction:column;gap:.4rem;margin-bottom:1.1rem;}
-.lb-row{background:var(--card);border:1.5px solid var(--border);border-radius:13px;padding:.5rem .9rem;
-  display:flex;align-items:center;gap:.7rem;box-shadow:0 3px 10px rgba(0,0,0,.3);}
-.lb-row.me{border-color:var(--gold);background:rgba(245,200,66,.07);box-shadow:0 0 12px rgba(245,200,66,.15);}
-.lb-rank{font-family:'Fredoka One';font-size:.95rem;color:var(--gold2);min-width:20px;}
-.lb-name{font-family:'Fredoka One';font-size:.88rem;color:var(--cream);flex:1;}
-.lb-score{font-family:'Fredoka One';font-size:.88rem;color:var(--gold);}
+.skin-card.active{border-color:var(--gold);box-shadow:0 0 14px rgba(245,200,66,.25);}
+.skin-card canvas{width:46px;height:46px;}
+.sk-name{font-family:'Fredoka One';font-size:.7rem;color:var(--cream);}
+.sk-price{font-family:'Fredoka One';font-size:.65rem;color:var(--gold2);}
+.sk-own{font-family:'Fredoka One';font-size:.63rem;color:var(--mint);}
 
 /* ── HUD ── */
 #hud{position:absolute;top:0;left:0;right:0;z-index:10;pointer-events:none;
-  display:flex;justify-content:space-between;align-items:flex-start;padding:.6rem .9rem;gap:.4rem;}
+  display:flex;justify-content:space-between;align-items:flex-start;padding:.55rem .85rem;}
 #hud.hidden{display:none;}
-.hud-pill{background:rgba(13,10,6,.85);border:1.5px solid var(--border2);border-radius:50px;
-  padding:.28rem .8rem;display:flex;align-items:center;gap:.35rem;
-  box-shadow:0 2px 12px rgba(0,0,0,.5),0 0 14px rgba(245,200,66,.1);backdrop-filter:blur(6px);}
-.hud-pill .hl{font-size:.52rem;letter-spacing:.18em;color:rgba(245,200,66,.42);text-transform:uppercase;}
-.hud-pill .hv{font-family:'Fredoka One';font-size:.95rem;color:var(--gold);line-height:1;}
-.hearts-row{display:flex;gap:2px;}
-.heart{font-size:.95rem;}
+.hpill{background:rgba(13,10,6,.88);border:1.5px solid var(--border2);border-radius:50px;
+  padding:.26rem .75rem;display:flex;align-items:center;gap:.32rem;backdrop-filter:blur(6px);
+  box-shadow:0 0 12px rgba(245,200,66,.08);}
+.hpill .hl{font-size:.5rem;letter-spacing:.18em;color:rgba(245,200,66,.4);text-transform:uppercase;}
+.hpill .hv{font-family:'Fredoka One';font-size:.92rem;color:var(--gold);line-height:1;}
+.hearts{display:flex;gap:2px;}
+.heart{font-size:.9rem;transition:transform .15s;}
 .heart.lost{filter:grayscale(1);opacity:.22;}
+
 #progressWrap{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.05);z-index:10;}
-#progressBar{height:100%;width:0%;background:linear-gradient(90deg,var(--gold2),var(--gold));box-shadow:0 0 8px var(--gold);transition:width .12s;}
-#biomeLabel{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
-  font-family:'Fredoka One';font-size:.78rem;color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.5);
-  letter-spacing:.1em;z-index:10;pointer-events:none;}
-#distLabel{position:absolute;bottom:10px;right:.9rem;font-family:'Fredoka One';font-size:.72rem;
-  color:rgba(245,200,66,.45);z-index:10;pointer-events:none;}
+#progressBar{height:100%;width:0%;background:linear-gradient(90deg,var(--gold2),var(--gold));
+  box-shadow:0 0 6px var(--gold);transition:width .1s;}
+#lvlLabel{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Fredoka One';font-size:clamp(1.5rem,5vw,3rem);color:var(--gold);
+  text-shadow:0 0 30px rgba(245,200,66,.6);letter-spacing:.1em;z-index:15;pointer-events:none;
+  opacity:0;transition:opacity .4s;}
+#lvlLabel.show{opacity:1;}
 
 /* ── DEATH ── */
-#deathScreen{background:rgba(8,5,0,.94);backdrop-filter:blur(8px);}
-.death-emoji{font-size:4rem;animation:dDrop .5s cubic-bezier(.175,.885,.32,1.275);}
-@keyframes dDrop{0%{transform:scale(2);opacity:0;}100%{transform:scale(1);opacity:1;}}
-.death-title{font-family:'Fredoka One';font-size:clamp(1.6rem,5vw,2.6rem);color:var(--red);
-  text-shadow:0 0 20px rgba(255,64,64,.55);letter-spacing:.04em;margin:.4rem 0;}
-.death-stats{font-size:.82rem;color:rgba(255,244,214,.45);margin-bottom:1.3rem;line-height:1.8;letter-spacing:.04em;}
-.death-stats b{color:var(--gold);}
+#deathSc{background:rgba(8,5,0,.93);backdrop-filter:blur(8px);}
+.d-emoji{font-size:3.8rem;animation:dDrop .45s cubic-bezier(.175,.885,.32,1.275);}
+@keyframes dDrop{from{transform:scale(2);opacity:0;}to{transform:scale(1);opacity:1;}}
+.d-title{font-family:'Fredoka One';font-size:clamp(1.5rem,5vw,2.4rem);color:var(--red);
+  text-shadow:0 0 18px rgba(255,64,64,.5);margin:.35rem 0;}
+.d-stats{font-size:.8rem;color:rgba(255,244,214,.45);margin-bottom:1.2rem;line-height:1.8;}
+.d-stats b{color:var(--gold);}
 
-/* ── BOSS ── */
-#bossWarning{position:absolute;inset:0;z-index:18;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;background:rgba(0,0,0,.78);backdrop-filter:blur(4px);}
-#bossWarning.hidden{display:none;}
-.bw-text{font-family:'Fredoka One';font-size:clamp(1.6rem,6vw,3rem);color:var(--red);
-  text-shadow:0 0 28px rgba(255,64,64,.8);letter-spacing:.12em;animation:bwP .5s ease-in-out infinite;}
-@keyframes bwP{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
-.bw-sub{font-family:'Fredoka One';font-size:1rem;color:var(--orange2);margin-top:.5rem;letter-spacing:.08em;}
+/* ── WIN ── */
+#winSc{background:rgba(0,8,0,.93);backdrop-filter:blur(8px);}
+.w-emoji{font-size:3.8rem;animation:wPop .5s cubic-bezier(.175,.885,.32,1.275);}
+@keyframes wPop{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+.w-title{font-family:'Fredoka One';font-size:clamp(1.5rem,5vw,2.4rem);color:var(--mint);
+  text-shadow:0 0 20px rgba(61,232,138,.5);margin:.35rem 0;}
+.w-stars{font-size:2rem;margin:.3rem 0;}
 
 /* ── ITEM POPUP ── */
-#itemPopup{position:absolute;left:50%;transform:translateX(-50%);bottom:65px;z-index:16;
-  background:var(--card2);border:1.5px solid var(--border2);border-radius:13px;
-  padding:.5rem 1.2rem;font-family:'Fredoka One';font-size:.88rem;color:var(--gold);
-  box-shadow:0 4px 20px rgba(0,0,0,.6),0 0 14px rgba(245,200,66,.2);
-  animation:popIn .3s cubic-bezier(.175,.885,.32,1.275);display:none;white-space:nowrap;}
-@keyframes popIn{from{transform:translateX(-50%) scale(.6);}to{transform:translateX(-50%) scale(1);}}
-#keysHint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
-  font-size:.58rem;color:rgba(255,244,214,.18);letter-spacing:.12em;z-index:10;pointer-events:none;text-align:center;}
+#itemPop{position:absolute;left:50%;transform:translateX(-50%);bottom:60px;z-index:16;
+  background:var(--card2);border:1.5px solid var(--border2);border-radius:12px;
+  padding:.48rem 1.1rem;font-family:'Fredoka One';font-size:.85rem;color:var(--gold);
+  box-shadow:0 4px 18px rgba(0,0,0,.6);animation:popIn .3s cubic-bezier(.175,.885,.32,1.275);
+  display:none;white-space:nowrap;}
+@keyframes popIn{from{transform:translateX(-50%)scale(.6);}to{transform:translateX(-50%)scale(1);}}
+
+#keysHint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+  font-size:.56rem;color:rgba(255,244,214,.18);letter-spacing:.1em;z-index:10;pointer-events:none;text-align:center;}
+
+/* ── MEDALS ── */
+#medalsSc{background:radial-gradient(ellipse at 50% 0%,#1f1500 0%,var(--bg) 60%);}
+.medals-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;
+  max-width:440px;width:90%;margin-bottom:1rem;max-height:52vh;overflow-y:auto;}
+.medals-grid::-webkit-scrollbar{width:3px;}
+.medals-grid::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+.medal-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;
+  padding:.6rem .35rem;display:flex;flex-direction:column;align-items:center;gap:.2rem;}
+.medal-card.unlocked{border-color:rgba(245,200,66,.3);}
+.medal-card.locked{filter:brightness(.3);}
+.m-icon{font-size:1.5rem;}.m-name{font-family:'Fredoka One';font-size:.63rem;color:var(--gold);text-align:center;}
+.m-desc{font-size:.5rem;color:rgba(255,244,214,.3);text-align:center;line-height:1.3;}
+
+/* ── PAUSE OVERLAY ── */
+#pauseOv{position:absolute;inset:0;z-index:18;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;}
+#pauseOv.hidden{display:none;}
+#pauseOv .p-title{font-family:'Fredoka One';font-size:2.5rem;color:var(--gold);text-shadow:0 0 24px rgba(245,200,66,.5);}
 </style>
 </head>
 <body>
 <div id="wrap">
-  <canvas id="bgCanvas"></canvas>
-  <canvas id="gameCanvas"></canvas>
+  <canvas id="bgCv"></canvas>
+  <canvas id="gCv"></canvas>
+
+  <!-- HUD -->
   <div id="hud" class="hidden">
-    <div class="hud-pill"><div><div class="hl">Vzdialenosť</div><div class="hv" id="hudDist">0m</div></div></div>
-    <div class="hud-pill"><div class="hearts-row" id="heartsRow"></div></div>
-    <div class="hud-pill"><span style="font-size:.88rem">🪙</span><div><div class="hl">Koláčiky</div><div class="hv" id="hudCoins">0</div></div></div>
+    <div class="hpill"><div><div class="hl">Level</div><div class="hv" id="hudLvl">1</div></div></div>
+    <div class="hpill"><div class="hearts" id="heartsRow"></div></div>
+    <div class="hpill"><span style="font-size:.82rem">🪙</span><div><div class="hl">Koláčiky</div><div class="hv" id="hudCoins">0</div></div></div>
   </div>
   <div id="progressWrap"><div id="progressBar"></div></div>
-  <div id="biomeLabel"></div><div id="distLabel"></div>
-  <div id="itemPopup"></div>
-  <div id="keysHint">MEDZERNÍK / KLIK — Skok &nbsp;·&nbsp; G — Gravitácia &nbsp;·&nbsp; P — Pauza &nbsp;·&nbsp; S — Udri bossa</div>
-  <div id="bossWarning" class="hidden"><div class="bw-text">⚠ BOSS SA BLÍŽI ⚠</div><div class="bw-sub" id="bossName"></div></div>
+  <div id="lvlLabel"></div>
+  <div id="itemPop"></div>
+  <div id="keysHint">MEDZERNÍK / KLIK — Skok &nbsp;·&nbsp; P — Pauza</div>
+
+  <!-- PAUSE -->
+  <div id="pauseOv" class="hidden">
+    <div class="p-title">⏸ Pauza</div>
+    <button class="kbtn gold" style="max-width:220px" onclick="togglePause()">▶ Pokračovať</button>
+    <button class="kbtn dark" style="max-width:220px" onclick="showLevelSelect()">⌂ Vybrať Level</button>
+  </div>
 
   <!-- MENU -->
-  <div class="screen" id="menuScreen">
-    <div class="menu-specks" id="menuSpecks"></div>
-    <div class="logo-wrap">
-      <div class="logo-icon">🍪</div>
-      <div class="logo-main">KeksLand</div>
-      <div class="logo-tagline">Nekonečná Cookie Výzva</div>
-      <div class="made-by">Projekt made by Lukas Drzík</div>
-    </div>
-    <div class="menu-coins-pill">🪙 <span class="ca" id="menuCoins">0</span> <span class="cl">koláčikov</span></div>
+  <div class="screen" id="menuSc">
+    <div class="specks" id="specks"></div>
+    <div class="logo-icon">🍪</div>
+    <div class="logo">KeksLand</div>
+    <div class="logo-sub">Cookie Runner · 10 Levelov</div>
+    <div class="made-by" style="margin-top:.25rem">Projekt made by Lukas Drzík</div>
+    <div class="coins-pill">🪙 <span class="ca" id="menuCoins">0</span> <span class="cl">koláčikov</span></div>
     <div class="menu-btns">
-      <button class="kbtn gold" onclick="startGame()">▶ &nbsp;HRAŤ</button>
-      <button class="kbtn dk-ora" onclick="showShop()">🛒 &nbsp;Obchod</button>
+      <button class="kbtn gold" onclick="showLevelSelect()">▶ &nbsp;Hrať</button>
+      <button class="kbtn dk-o" onclick="showShop()">🛒 &nbsp;Obchod</button>
       <button class="kbtn dark" onclick="showMedals()">🏅 &nbsp;Medaily</button>
-      <button class="kbtn dk-mint" onclick="showLeaderboard()">🏆 &nbsp;Rebríček</button>
     </div>
-    <div style="font-size:.6rem;color:rgba(245,200,66,.22);margin-top:.8rem;letter-spacing:.1em;">Rekord: <b id="menuBest" style="color:rgba(245,200,66,.5)">0m</b></div>
+    <div style="font-size:.58rem;color:rgba(245,200,66,.2);margin-top:.7rem;letter-spacing:.1em;">
+      Rekord: <b id="menuBest" style="color:rgba(245,200,66,.45)">—</b>
+    </div>
+  </div>
+
+  <!-- LEVEL SELECT -->
+  <div class="screen hidden" id="levelSc">
+    <div class="sec-title">🍪 Vyber Level</div>
+    <div class="sec-sub">10 ručne vytvorených + náhodný</div>
+    <div class="level-grid" id="levelGrid"></div>
+    <button class="kbtn dark" style="max-width:220px" onclick="showMenu()">← Späť</button>
   </div>
 
   <!-- SHOP -->
-  <div class="screen hidden" id="shopScreen">
-    <div class="sec-title">🛒 Obchod</div><div class="sec-sub">Odomkni nové skiny</div>
-    <div style="font-family:'Fredoka One';font-size:.95rem;color:var(--orange2);margin-bottom:.9rem;">🪙 <span id="shopCoins">0</span></div>
+  <div class="screen hidden" id="shopSc">
+    <div class="sec-title">🛒 Obchod</div>
+    <div class="sec-sub">Nakupuj skiny za koláčiky</div>
+    <div style="font-family:'Fredoka One';font-size:.92rem;color:var(--orange2);margin-bottom:.8rem;">🪙 <span id="shopCoins">0</span></div>
     <div class="shop-grid" id="shopGrid"></div>
-    <button class="kbtn dark" style="max-width:210px" onclick="showMenu()">← Späť</button>
+    <button class="kbtn dark" style="max-width:220px" onclick="showMenu()">← Späť</button>
   </div>
 
   <!-- MEDALS -->
-  <div class="screen hidden" id="medalsScreen">
-    <div class="sec-title">🏅 Medaily</div><div class="sec-sub">Tvoje úspechy</div>
+  <div class="screen hidden" id="medalsSc">
+    <div class="sec-title">🏅 Medaily</div>
+    <div class="sec-sub">Tvoje úspechy</div>
     <div class="medals-grid" id="medalsGrid"></div>
-    <button class="kbtn dark" style="max-width:210px" onclick="showMenu()">← Späť</button>
-  </div>
-
-  <!-- LEADERBOARD -->
-  <div class="screen hidden" id="lbScreen">
-    <div class="sec-title">🏆 Rebríček</div><div class="sec-sub">Hall of Fame</div>
-    <div class="lb-list" id="lbList"></div>
-    <button class="kbtn dark" style="max-width:210px" onclick="showMenu()">← Späť</button>
+    <button class="kbtn dark" style="max-width:220px" onclick="showMenu()">← Späť</button>
   </div>
 
   <!-- DEATH -->
-  <div class="screen hidden" id="deathScreen">
-    <div class="death-emoji">😵</div>
-    <div class="death-title">Nevydržal si!</div>
-    <div class="death-stats">Vzdialenosť: <b id="deathDist">0m</b> &nbsp;·&nbsp; Koláčiky: <b id="deathCoins">0</b><br>Tvoj rekord: <b id="deathBest">0m</b></div>
-    <div style="display:flex;flex-direction:column;gap:.5rem;align-items:center;width:100%;max-width:230px;">
-      <button class="kbtn gold" onclick="startGame()">↺ &nbsp;Znova</button>
-      <button class="kbtn dark" onclick="showMenu()">⌂ &nbsp;Menu</button>
+  <div class="screen hidden" id="deathSc">
+    <div class="d-emoji">😵</div>
+    <div class="d-title">Nevydržal si!</div>
+    <div class="d-stats">Level: <b id="dLvl">1</b> &nbsp;·&nbsp; Koláčiky: <b id="dCoins">0</b></div>
+    <div style="display:flex;flex-direction:column;gap:.45rem;align-items:center;width:100%;max-width:220px;">
+      <button class="kbtn gold" onclick="restartLevel()">↺ &nbsp;Znova</button>
+      <button class="kbtn dark" onclick="showLevelSelect()">☰ &nbsp;Levely</button>
+    </div>
+  </div>
+
+  <!-- WIN -->
+  <div class="screen hidden" id="winSc">
+    <div class="w-emoji">🎉</div>
+    <div class="w-title" id="winTitle">Level Dokončený!</div>
+    <div class="w-stars" id="winStars">⭐⭐⭐</div>
+    <div class="d-stats" style="color:rgba(255,244,214,.5);">Koláčiky: <b id="wCoins" style="color:var(--gold)">0</b></div>
+    <div style="display:flex;flex-direction:column;gap:.45rem;align-items:center;width:100%;max-width:220px;margin-top:.3rem;">
+      <button class="kbtn gold" id="nextLvlBtn" onclick="nextLevel()">→ &nbsp;Ďalší Level</button>
+      <button class="kbtn dark" onclick="showLevelSelect()">☰ &nbsp;Levely</button>
     </div>
   </div>
 </div>
-<script>
-const bgC=document.getElementById('bgCanvas'),bgX=bgC.getContext('2d');
-const gc=document.getElementById('gameCanvas'),ctx=gc.getContext('2d');
-let W,H,GROUND,CEIL;
-function resize(){W=gc.width=bgC.width=window.innerWidth;H=gc.height=bgC.height=window.innerHeight;GROUND=H-65;CEIL=42;}
-resize();window.addEventListener('resize',resize);
-const SAVE={coins:+localStorage.getItem('kl_coins')||0,best:+localStorage.getItem('kl_best')||0,
-  owned:JSON.parse(localStorage.getItem('kl_owned')||'["choco"]'),skin:localStorage.getItem('kl_skin')||'choco',
-  medals:JSON.parse(localStorage.getItem('kl_medals')||'[]')};
-function sv(){localStorage.setItem('kl_coins',SAVE.coins);localStorage.setItem('kl_best',SAVE.best);
-  localStorage.setItem('kl_owned',JSON.stringify(SAVE.owned));localStorage.setItem('kl_skin',SAVE.skin);
-  localStorage.setItem('kl_medals',JSON.stringify(SAVE.medals));}
-const SKINS=[
-  {id:'choco',name:'Čokoládový',price:0,  b:'#6b3a10',g:'#c87820',ch:'#2a1000',glow:'#c87820'},
-  {id:'neon', name:'Neon',      price:200,b:'#080818',g:'#00f5ff',ch:'#ff00aa',glow:'#00f5ff'},
-  {id:'gold', name:'Zlatý',     price:150,b:'#7a5200',g:'#f5c842',ch:'#3a2000',glow:'#f5c842'},
-  {id:'mint', name:'Mätový',    price:100,b:'#082218',g:'#3de88a',ch:'#041408',glow:'#3de88a'},
-  {id:'viol', name:'Fialový',   price:120,b:'#160828',g:'#b97bff',ch:'#080018',glow:'#b97bff'},
-  {id:'fire', name:'Ohnivý',    price:180,b:'#280a00',g:'#ff6600',ch:'#140300',glow:'#ff6600'},
-];
-const MEDALS=[
-  {id:'first',icon:'🥇',name:'Prvý skok',   desc:'Prvýkrát skočiť'},
-  {id:'m100', icon:'🍪',name:'100 metrov',  desc:'Prejsť 100m'},
-  {id:'m500', icon:'🏃',name:'500 metrov',  desc:'Prejsť 500m'},
-  {id:'m1000',icon:'⭐',name:'1 kilometer', desc:'Prejsť 1000m'},
-  {id:'m2000',icon:'🚀',name:'Legendárny',  desc:'Prejsť 2000m'},
-  {id:'boss1',icon:'👹',name:'Boss Zabitý', desc:'Prežiť bossa'},
-  {id:'c50',  icon:'🪙',name:'Sporiteľ',    desc:'50 koláčikov'},
-  {id:'shld', icon:'🛡️',name:'Chránený',    desc:'Použiť štít'},
-  {id:'grav', icon:'🔄',name:'Flipper',     desc:'Otočiť gravitáciu'},
-  {id:'all',  icon:'👑',name:'Zberateľ',    desc:'Všetky skiny'},
-  {id:'5run', icon:'🔥',name:'Vytrvalý',    desc:'5 spustení'},
-  {id:'nodie',icon:'💎',name:'Nedotknuteľný',desc:'500m bez zásahu'},
-];
-const BIOMES=[
-  {name:'🌲 Čarovný Les',  sT:'#080e08',sB:'#0b0e09',gc:'#142a0c',gl:'#203d12',oc:['#1e4a0c','#2e6a18','#4a7c3f']},
-  {name:'❄️ Ľadová Krajina',sT:'#040c18',sB:'#070c12',gc:'#081828',gl:'#0e2e4a',oc:['#0e3a5a','#1a5a8a','#38c8ff']},
-  {name:'🔥 Koláčová Pec',  sT:'#160600',sB:'#100400',gc:'#280e00',gl:'#4a1a00',oc:['#7a1a00','#bb3800','#ff5500']},
-  {name:'🌸 Cukrový Ráj',   sT:'#180818',sB:'#100610',gc:'#280828',gl:'#501050',oc:['#7a1868','#aa5aff','#ff60c0']},
-];
-const ITEMS=[
-  {id:'shield',icon:'🛡️',name:'Štít',   color:'#3de88a',desc:'Blokuje 1 zásah'},
-  {id:'magnet',icon:'🧲',name:'Magnet', color:'#38c8ff',desc:'Pritiahne mince'},
-  {id:'star',  icon:'⭐',name:'Hviezda',color:'#f5c842',desc:'3s ochrana'},
-  {id:'slow',  icon:'⏱️',name:'Slow-Mo',color:'#b97bff',desc:'Spomalí svet'},
-];
-const LB_BOTS=[{n:'CookieMaster',s:3200},{n:'SlimeBoy',s:2400},{n:'JankoC',s:1900},{n:'PecíkoRun',s:1550},{n:'XenoCrumb',s:1100},{n:'BiscuitGod',s:750}];
-const BOSS_T=[
-  {name:'Koláčový Pestrec 🎪',emoji:'🍩',color:'#ff6600',hp:8,w:76,h:76},
-  {name:'Ľadový Golem ❄️',   emoji:'🧊',color:'#38c8ff',hp:10,w:86,h:86},
-  {name:'Čokoládový Drak 🐉', emoji:'🍫',color:'#c87820',hp:12,w:94,h:94},
-];
-let state='menu',camX=0,dist=0,runCoins=0,hearts=3,maxH=3;
-let gravDir=1,paused=false,frame=0;
-let runCount=+localStorage.getItem('kl_runs')||0;
-let noDmgDist=0;
-const P={x:110,y:0,vy:0,w:36,h:36,og:false,jl:2,ang:0,tr:[],
-  sh:false,sht:0,mg:false,mgt:0,inv:false,invt:0,sl:false,slt:0,skin:SKINS[0]};
-let obs=[],coins=[],items=[],parts=[],floats=[],bgD=[];
-let lastCX=0,curBiome=0,nextBiome=700;
-let bossOn=false,boss=null,bossHP=0,bossMaxHP=0,bossIdx=0,nextBoss=1000,bossShowing=false;
-const stars=[];
-for(let i=0;i<200;i++) stars.push({x:Math.random()*5000,y:Math.random()*900,r:.3+Math.random()*1.1,a:.15+Math.random()*.65,sp:.04+Math.random()*.14});
-function maybeChunk(){while(lastCX<camX+W+700){spawnChunk(lastCX);lastCX+=600;}}
-function rnd(a){return a[Math.floor(Math.random()*a.length)];}
-function spawnChunk(sx){
-  const bm=BIOMES[curBiome],df=Math.min(1,dist/3000);
-  let x=sx+100;const end=sx+580;
-  for(let i=0;i<4;i++) bgD.push({x:sx+Math.random()*600,b:curBiome,sc:.18+Math.random()*.22,sd:Math.random()});
-  while(x<end){
-    const t=Math.random(),col=rnd(bm.oc);
-    if(t<.35){const n=1+Math.floor(Math.random()*(2+df*3));for(let i=0;i<n;i++)obs.push({x:x+i*42,y:GROUND-44,w:38,h:44,t:'s',c:col});x+=n*42+65+Math.random()*80;}
-    else if(t<.55){const n=1+Math.floor(Math.random()*(1+df*2));for(let i=0;i<n;i++)obs.push({x:x+i*42,y:CEIL,w:38,h:44,t:'sc',c:col});x+=n*42+75+Math.random()*60;}
-    else if(t<.72){const gy=CEIL+28+Math.random()*(GROUND-CEIL-120),gh=90+Math.random()*45;
-      if(gy>CEIL+5)obs.push({x,y:CEIL,w:24,h:gy-CEIL,t:'w',c:col});
-      if(gy+gh<GROUND-5)obs.push({x,y:gy+gh,w:24,h:GROUND-(gy+gh),t:'w',c:col});x+=24+80+Math.random()*80;}
-    else{const py=GROUND-85-Math.random()*80;obs.push({x,y:py,w:70,h:12,t:'p',c:col});
-      if(Math.random()>.4)obs.push({x:x+16,y:py-42,w:38,h:44,t:'s',c:col});x+=70+90+Math.random()*80;}
-    if(Math.random()<.45){const cy2=GROUND-110-Math.random()*70;for(let i=0;i<3+Math.floor(Math.random()*4);i++)coins.push({x:x+i*28-30,y:cy2,taken:false,bob:Math.random()*Math.PI*2});}
-    if(Math.random()<.07){const it=rnd(ITEMS);items.push({x:x+Math.random()*80,y:GROUND-125-Math.random()*55,it,taken:false,bob:Math.random()*Math.PI*2});}
-  }
-}
-function spawnBoss(){
-  const bt=BOSS_T[bossIdx%3];bossIdx++;bossMaxHP=bt.hp;bossHP=bt.hp;
-  boss={x:camX+W+50,y:GROUND-bt.h,w:bt.w,h:bt.h,vx:-(3+dist/1500),vy:0,type:bt,ang:0,projs:[],st:0};
-  bossOn=true;
-  document.getElementById('bossWarning').classList.remove('hidden');
-  document.getElementById('bossName').textContent=bt.name;
-  setTimeout(()=>document.getElementById('bossWarning').classList.add('hidden'),2500);
-}
-function updBoss(){
-  if(!boss)return;
-  boss.x+=boss.vx;boss.y+=boss.vy;boss.ang+=.05;boss.st++;
-  boss.vy+=.22;
-  if(boss.y>=GROUND-boss.h){boss.y=GROUND-boss.h;boss.vy=-(5+Math.random()*3);}
-  if(boss.y<=CEIL){boss.y=CEIL;boss.vy=Math.abs(boss.vy);}
-  boss.x=Math.max(camX+40,Math.min(camX+W-boss.w-10,boss.x));
-  if(boss.vx>0&&boss.x>=camX+W-boss.w-15)boss.vx*=-1;
-  if(boss.vx<0&&boss.x<=camX+45)boss.vx*=-1;
-  if(boss.st>90){boss.st=0;const a=Math.atan2((P.y+P.h/2)-(boss.y+boss.h/2),(P.x+P.w/2)-(boss.x+boss.w/2));
-    boss.projs.push({x:boss.x+boss.w/2,y:boss.y+boss.h/2,vx:Math.cos(a)*4.5,vy:Math.sin(a)*4.5,r:9});}
-  for(let i=boss.projs.length-1;i>=0;i--){
-    const bp=boss.projs[i];bp.x+=bp.vx;bp.y+=bp.vy;
-    if(bp.x<camX-50||bp.x>camX+W+50){boss.projs.splice(i,1);continue;}
-    if(circRect(bp.x,bp.y,bp.r,P.x,P.y,P.w,P.h)){boss.projs.splice(i,1);takeDmg();}
-  }
-  if(rects(boss.x,boss.y,boss.w,boss.h,P.x,P.y,P.w,P.h)){boss.vx*=-1;takeDmg();}
-}
-function hitBoss(){
-  if(!bossOn||!boss)return;
-  bossHP--;spawnP(boss.x-camX+boss.w/2,boss.y+boss.h/2,boss.type.color,8);
-  showF('💥',boss.x-camX+boss.w/2,boss.y,boss.type.color);
-  if(bossHP<=0){
-    spawnP(boss.x-camX+boss.w/2,boss.y+boss.h/2,'#f5c842',28);
-    for(let i=0;i<10;i++)coins.push({x:boss.x+Math.random()*boss.w,y:boss.y+Math.random()*boss.h,taken:false,bob:Math.random()*Math.PI*2});
-    boss=null;bossOn=false;nextBoss=Math.ceil((dist+1)/1000)*1000;
-    awardMedal('boss1');showF('🏆 BOSS!',W/2,H/2,'#f5c842');
-  }
-}
-function updP(){
-  P.vy+=.52*gravDir;P.vy=Math.max(-15,Math.min(15,P.vy));P.y+=P.vy;
-  if(gravDir===1){if(P.y>=GROUND-P.h){P.y=GROUND-P.h;P.vy=0;P.og=true;P.jl=2;}else P.og=false;if(P.y<=CEIL){P.y=CEIL;P.vy=0;}}
-  else{if(P.y<=CEIL){P.y=CEIL;P.vy=0;P.og=true;P.jl=2;}else P.og=false;if(P.y>=GROUND-P.h){P.y=GROUND-P.h;P.vy=0;}}
-  if(!P.og)P.ang+=.07*gravDir;else P.ang=Math.round(P.ang/(Math.PI/2))*(Math.PI/2);
-  P.tr.unshift({x:P.x+P.w/2,y:P.y+P.h/2,a:.55});if(P.tr.length>14)P.tr.pop();P.tr.forEach(t=>t.a*=.8);
-  if(P.sht>0){P.sht--;if(!P.sht)P.sh=false;}if(P.mgt>0){P.mgt--;if(!P.mgt)P.mg=false;}
-  if(P.invt>0){P.invt--;if(!P.invt)P.inv=false;}if(P.slt>0){P.slt--;if(!P.slt)P.sl=false;}
-}
-function getSpd(){return(5.5+Math.min(1,dist/3000)*6.5)*(P.sl?.45:1);}
-function checkCols(){
-  const pr={x:camX+P.x+3,y:P.y+3,w:P.w-6,h:P.h-6};
-  for(const o of obs){
-    if(!aabb(pr,o))continue;
-    if(o.t==='p'){if(P.vy>=0&&gravDir===1&&P.y+P.h-P.vy-3<=o.y+4){P.y=o.y-P.h;P.vy=0;P.og=true;P.jl=2;}continue;}
-    takeDmg();return;
-  }
-  for(const c of coins){
-    if(c.taken)continue;const dx=c.x-(camX+P.x+P.w/2),dy=c.y-(P.y+P.h/2);
-    if(P.mg){c.x-=dx*.09;c.y-=dy*.09;}
-    if(Math.abs(dx)<(P.mg?130:26)&&Math.abs(dy)<(P.mg?130:26)){
-      c.taken=true;runCoins++;SAVE.coins++;document.getElementById('hudCoins').textContent=runCoins;
-      spawnP(c.x-camX,c.y,'#f5c842',5);showF('+🪙',c.x-camX,c.y,'#f5c842');checkMedals();}
-  }
-  for(const ip of items){if(ip.taken)continue;
-    if(Math.abs(ip.x-(camX+P.x+P.w/2))<32&&Math.abs(ip.y-(P.y+P.h/2))<32){ip.taken=true;applyItem(ip.it);}}
-}
-function takeDmg(){
-  if(P.inv)return;
-  if(P.sh){P.sh=false;P.sht=0;spawnP(P.x+P.w/2,P.y+P.h/2,'#3de88a',12);showF('🛡️',P.x,P.y,'#3de88a');return;}
-  hearts--;noDmgDist=0;updHeartsUI();spawnP(P.x+P.w/2,P.y+P.h/2,'#ff4040',10);
-  if(hearts<=0){die();return;}P.inv=true;P.invt=80;showF('💔',P.x,P.y,'#ff4040');
-}
-function applyItem(it){
-  if(it.id==='shield'){P.sh=true;P.sht=420;awardMedal('shld');}
-  else if(it.id==='magnet'){P.mg=true;P.mgt=320;}
-  else if(it.id==='star'){P.inv=true;P.invt=200;}
-  else if(it.id==='slow'){P.sl=true;P.slt=220;}
-  const el=document.getElementById('itemPopup');el.textContent=it.icon+' '+it.name+' — '+it.desc;el.style.display='block';
-  clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',2200);
-  spawnP(P.x+P.w/2,P.y+P.h/2,it.color,15);
-}
-function awardMedal(id){
-  if(SAVE.medals.includes(id))return;SAVE.medals.push(id);sv();
-  const m=MEDALS.find(x=>x.id===id);if(m)showF(m.icon+' '+m.name,W/2,H/2-50,'#f5c842');
-}
-function checkMedals(){
-  if(dist>=100)awardMedal('m100');if(dist>=500)awardMedal('m500');if(dist>=1000)awardMedal('m1000');if(dist>=2000)awardMedal('m2000');
-  if(runCoins>=50)awardMedal('c50');if(noDmgDist>=500)awardMedal('nodie');if(runCount>=5)awardMedal('5run');
-  if(SAVE.owned.length>=SKINS.length)awardMedal('all');
-}
-function die(){if(dist>SAVE.best)SAVE.best=dist;sv();updLB();state='dead';
-  document.getElementById('deathDist').textContent=Math.floor(dist)+'m';
-  document.getElementById('deathCoins').textContent=runCoins;
-  document.getElementById('deathBest').textContent=Math.floor(SAVE.best)+'m';
-  document.getElementById('deathScreen').classList.remove('hidden');
-  document.getElementById('hud').classList.add('hidden');}
-function spawnP(x,y,col,n=12){for(let i=0;i<n;i++){const a=(Math.PI*2/n)*i+Math.random()*.4,s=2.5+Math.random()*4;parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,life:1,dec:.025+Math.random()*.02,r:2+Math.random()*3,color:col});}}
-function showF(txt,x,y,col){floats.push({txt,x,y,color:col,life:1,vy:-1.6});}
-function updParts(){
-  for(let i=parts.length-1;i>=0;i--){const p=parts[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.1;p.life-=p.dec;if(p.life<=0)parts.splice(i,1);}
-  for(let i=floats.length-1;i>=0;i--){const f=floats[i];f.y+=f.vy;f.life-=.022;if(f.life<=0)floats.splice(i,1);}
-}
-const keys={};let jU=false;
-window.addEventListener('keydown',e=>{keys[e.key]=true;
-  if(state==='playing'&&!paused){
-    if((e.key===' '||e.key==='ArrowUp')&&!jU){doJump();jU=true;}
-    if(e.key==='g'||e.key==='G'){flipG();awardMedal('grav');}
-    if(e.key==='p'||e.key==='P')paused=!paused;
-    if(e.key==='s'||e.key==='S'||e.key==='ArrowDown')hitBoss();
-  }});
-window.addEventListener('keyup',e=>{keys[e.key]=false;if(e.key===' '||e.key==='ArrowUp')jU=false;});
-gc.addEventListener('pointerdown',()=>{if(state==='playing'&&!paused)doJump();});
-function doJump(){if(P.jl>0){P.vy=(P.jl===2?-13:-10)*gravDir;P.jl--;spawnP(P.x+P.w/2,P.y+(gravDir===1?P.h:0),'#f5c842',6);awardMedal('first');}}
-function flipG(){gravDir*=-1;P.vy=-9*gravDir;spawnP(P.x+P.w/2,P.y+P.h/2,'#b97bff',8);}
-function checkBiome(){if(dist>=nextBiome){curBiome=(curBiome+1)%BIOMES.length;nextBiome+=600+Math.random()*400;const bl=document.getElementById('biomeLabel');bl.textContent=BIOMES[curBiome].name;setTimeout(()=>bl.textContent='',3000);}}
-function updHeartsUI(){const row=document.getElementById('heartsRow');row.innerHTML='';for(let i=0;i<maxH;i++){const s=document.createElement('span');s.className='heart'+(i>=hearts?' lost':'');s.textContent='❤️';row.appendChild(s);}}
 
-// ── BG DRAW ──
-function drawBG(){
-  const bm=BIOMES[curBiome];bgX.clearRect(0,0,W,H);
-  const g=bgX.createLinearGradient(0,0,0,H);g.addColorStop(0,bm.sT);g.addColorStop(1,bm.sB);bgX.fillStyle=g;bgX.fillRect(0,0,W,H);
-  stars.forEach(s=>{if(state==='playing')s.x-=s.sp;if(s.x<0)s.x=W;const fa=s.a*(.6+.4*Math.sin(frame*.04+s.x*.01));bgX.beginPath();bgX.arc(s.x%W,s.y%H,s.r,0,Math.PI*2);bgX.fillStyle=`rgba(255,240,190,${fa})`;bgX.fill();});
-  bgD.forEach(d=>{const sx=d.x-camX*d.sc;if(sx<-150||sx>W+150)return;drawBgD(d,sx);});
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  KEKSLAND v3 — Pixel-perfect, 10 hand-crafted levels
+// ═══════════════════════════════════════════════════════════════
+
+const bgCv = document.getElementById('bgCv');
+const bgX  = bgCv.getContext('2d');
+const gCv  = document.getElementById('gCv');
+const ctx  = gCv.getContext('2d');
+
+// ── CANVAS SIZE ──
+// We use a FIXED internal resolution so levels are consistent
+const IW = 1200; // internal width
+const IH = 400;  // internal height
+const TILE = 40; // 1 tile = 40px
+const GROUND_Y = IH - TILE;   // y of ground surface = 360
+const CEIL_Y   = TILE;         // y of ceiling = 40
+
+let screenW, screenH, scale, offX, offY;
+function resize() {
+  screenW = gCv.width  = bgCv.width  = window.innerWidth;
+  screenH = gCv.height = bgCv.height = window.innerHeight;
+  // letterbox: fit IW×IH inside screen keeping aspect
+  scale = Math.min(screenW / IW, screenH / IH);
+  offX = (screenW - IW * scale) / 2;
+  offY = (screenH - IH * scale) / 2;
 }
-function drawBgD(d,sx){
-  bgX.save();bgX.globalAlpha=.3;
-  if(d.b===0){bgX.fillStyle='#122a08';bgX.beginPath();bgX.moveTo(sx,GROUND-45);bgX.lineTo(sx-18,GROUND-115);bgX.lineTo(sx+18,GROUND-115);bgX.closePath();bgX.fill();bgX.fillStyle='#1e4010';bgX.beginPath();bgX.moveTo(sx,GROUND-100);bgX.lineTo(sx-14,GROUND-158);bgX.lineTo(sx+14,GROUND-158);bgX.closePath();bgX.fill();bgX.fillStyle='#0b1a06';bgX.fillRect(sx-4,GROUND-55,8,50);}
-  else if(d.b===1){bgX.fillStyle='#0a1e3a';bgX.beginPath();bgX.moveTo(sx,GROUND-18);bgX.lineTo(sx-11,GROUND-65);bgX.lineTo(sx+11,GROUND-65);bgX.closePath();bgX.fill();bgX.strokeStyle='#38c8ff33';bgX.lineWidth=1;bgX.beginPath();bgX.arc(sx,GROUND-85,20,Math.PI,Math.PI*2);bgX.stroke();}
-  else if(d.b===2){bgX.fillStyle='#380a00';bgX.fillRect(sx-9,GROUND-75,18,70);bgX.fillStyle='#ff440018';for(let i=0;i<3;i++){bgX.beginPath();bgX.moveTo(sx,GROUND-85-i*11);bgX.lineTo(sx-5,GROUND-68-i*11);bgX.lineTo(sx+5,GROUND-68-i*11);bgX.closePath();bgX.fill();}}
-  else{bgX.fillStyle='#380838';bgX.beginPath();bgX.arc(sx,GROUND-55,16,0,Math.PI*2);bgX.fill();bgX.fillStyle='#180625';bgX.beginPath();bgX.arc(sx+14,GROUND-78,10,0,Math.PI*2);bgX.fill();}
-  bgX.restore();
+resize();
+window.addEventListener('resize', resize);
+
+// ── SAVE ──
+const SAVE = {
+  coins:   +localStorage.getItem('kl3_coins')  || 0,
+  owned:   JSON.parse(localStorage.getItem('kl3_owned')  || '["choco"]'),
+  skin:    localStorage.getItem('kl3_skin')     || 'choco',
+  medals:  JSON.parse(localStorage.getItem('kl3_medals') || '[]'),
+  done:    JSON.parse(localStorage.getItem('kl3_done')   || '[]'),
+  stars:   JSON.parse(localStorage.getItem('kl3_stars')  || '{}'),
+};
+function sv() {
+  localStorage.setItem('kl3_coins',  SAVE.coins);
+  localStorage.setItem('kl3_owned',  JSON.stringify(SAVE.owned));
+  localStorage.setItem('kl3_skin',   SAVE.skin);
+  localStorage.setItem('kl3_medals', JSON.stringify(SAVE.medals));
+  localStorage.setItem('kl3_done',   JSON.stringify(SAVE.done));
+  localStorage.setItem('kl3_stars',  JSON.stringify(SAVE.stars));
 }
-function drawGame(){
-  ctx.clearRect(0,0,W,H);drawFloor();
-  obs.forEach(o=>{const sx=o.x-camX;if(sx>W+60||sx<-60)return;drawObs(o,sx);});
-  coins.forEach(c=>{if(c.taken)return;const sx=c.x-camX;if(sx>W+40||sx<-40)return;drawCoin(c,sx);});
-  items.forEach(ip=>{if(ip.taken)return;const sx=ip.x-camX;if(sx>W+40||sx<-40)return;drawItem(ip,sx);});
-  drawTrail();drawPlayer();
-  if(bossOn&&boss)drawBoss();
-  parts.forEach(p=>{ctx.save();ctx.beginPath();ctx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);ctx.fillStyle=p.color+Math.floor(p.life*200).toString(16).padStart(2,'0');ctx.shadowColor=p.color;ctx.shadowBlur=6;ctx.fill();ctx.restore();});
-  floats.forEach(f=>{ctx.save();ctx.globalAlpha=f.life;ctx.font="bold 1rem 'Fredoka One'";ctx.textAlign='center';ctx.fillStyle=f.color;ctx.shadowColor=f.color;ctx.shadowBlur=8;ctx.fillText(f.txt,f.x,f.y);ctx.textAlign='left';ctx.restore();});
-  if(bossOn&&boss){
-    ctx.fillStyle='rgba(0,0,0,.55)';ctx.beginPath();ctx.roundRect(W/2-100,9,200,15,7);ctx.fill();
-    const pc=bossHP/bossMaxHP,hc=pc>.5?'#3de88a':pc>.25?'#f5c842':'#ff4040';
-    ctx.fillStyle=hc;ctx.shadowColor=hc;ctx.shadowBlur=8;ctx.beginPath();ctx.roundRect(W/2-98,11,Math.max(0,196*pc),11,5);ctx.fill();ctx.shadowBlur=0;
-    ctx.fillStyle='rgba(255,255,255,.7)';ctx.font="700 8px 'Nunito'";ctx.textAlign='center';ctx.fillText(boss.type.name,W/2,21);ctx.textAlign='left';
+
+// ── SKINS ──
+const SKINS = [
+  {id:'choco', name:'Čokoládový', price:0,   b:'#6b3a10', g:'#c87820', ch:'#2a1000', glow:'#c87820'},
+  {id:'neon',  name:'Neon',       price:200, b:'#080818', g:'#00f5ff', ch:'#ff00aa', glow:'#00f5ff'},
+  {id:'gold',  name:'Zlatý',      price:150, b:'#7a5200', g:'#f5c842', ch:'#3a2000', glow:'#f5c842'},
+  {id:'mint',  name:'Mätový',     price:100, b:'#082218', g:'#3de88a', ch:'#041408', glow:'#3de88a'},
+  {id:'viol',  name:'Fialový',    price:120, b:'#160828', g:'#b97bff', ch:'#080018', glow:'#b97bff'},
+  {id:'fire',  name:'Ohnivý',     price:180, b:'#280a00', g:'#ff6600', ch:'#140300', glow:'#ff6600'},
+];
+
+// ── MEDALS ──
+const MEDALS = [
+  {id:'first',  icon:'🥇', name:'Prvý skok',    desc:'Prvýkrát skočiť'},
+  {id:'l1',     icon:'🍪', name:'Level 1',       desc:'Dokončiť level 1'},
+  {id:'l5',     icon:'⭐', name:'Level 5',       desc:'Dokončiť level 5'},
+  {id:'l10',    icon:'🏆', name:'Level 10',      desc:'Dokončiť level 10'},
+  {id:'all10',  icon:'👑', name:'Všetky levely', desc:'Dokončiť všetkých 10'},
+  {id:'c50',    icon:'🪙', name:'Sporiteľ',      desc:'Nazbierať 50 koláčikov'},
+  {id:'c200',   icon:'💰', name:'Keksový Kráľ',  desc:'Nazbierať 200 koláčikov'},
+  {id:'3stars', icon:'💎', name:'Perfektný',     desc:'3 hviezdy na akomkoľvek leveli'},
+  {id:'nodie',  icon:'🛡️', name:'Nedotknuteľný', desc:'Dokončiť level bez zásahu'},
+  {id:'random', icon:'🎲', name:'Gambler',       desc:'Dokončiť náhodný level'},
+  {id:'allsk',  icon:'🌈', name:'Zberateľ',      desc:'Odomknúť všetky skiny'},
+  {id:'fast',   icon:'⚡', name:'Rýchly',        desc:'Level s 3 hviezdami pod 30s'},
+];
+
+// ═══════════════════════════════════════════════════════════════
+//  LEVEL DEFINITIONS
+//  Each level is a list of obstacle objects in TILE coordinates.
+//  Types: 'spike' | 'spikeCeil' | 'wall' | 'platform' | 'movingH' | 'movingV'
+//  All x,y,w,h are in TILES (×TILE to get px).
+//  coins: array of {x,y} in tiles
+//  speed: player speed in internal px/frame (at 60fps)
+// ═══════════════════════════════════════════════════════════════
+
+function T(n){ return n * TILE; }
+
+const LEVELS = [
+  // ── LEVEL 1 — Tutorial: single spikes, wide gaps ──
+  {
+    name: 'Prvé kroky', color: '#f5c842', bgBiome: 0,
+    speed: 3.8, length: 80, // length in tiles
+    hearts: 3,
+    obstacles: [
+      {type:'spike',    tx:18, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spike',    tx:22, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spike',    tx:23, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'platform', tx:28, ty:GROUND_Y/TILE-3, tw:3, th:.5},
+      {type:'spike',    tx:32, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spike',    tx:38, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'platform', tx:44, ty:GROUND_Y/TILE-3, tw:2, th:.5},
+      {type:'spike',    tx:48, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spike',    tx:52, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spike',    tx:58, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spike',    tx:59, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spike',    tx:60, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spike',    tx:65, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spike',    tx:70, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spike',    tx:71, ty:GROUND_Y/TILE-1, tw:1, th:1},
+    ],
+    coins: [
+      {tx:19,ty:GROUND_Y/TILE-2.5},{tx:29,ty:GROUND_Y/TILE-4.5},{tx:30,ty:GROUND_Y/TILE-4.5},
+      {tx:39,ty:GROUND_Y/TILE-2.5},{tx:45,ty:GROUND_Y/TILE-4.5},{tx:53,ty:GROUND_Y/TILE-2.5},
+      {tx:59.5,ty:GROUND_Y/TILE-3},{tx:66,ty:GROUND_Y/TILE-2.5},{tx:71.5,ty:GROUND_Y/TILE-2.5},
+    ],
+    items: [],
+  },
+
+  // ── LEVEL 2 — Double spikes, intro ceiling ──
+  {
+    name: 'Dvojitá hrozba', color: '#ff8c00', bgBiome: 0,
+    speed: 4.2, length: 90,
+    hearts: 3,
+    obstacles: [
+      {type:'spike',     tx:15, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil', tx:20, ty:1,                tw:1, th:1},
+      {type:'spike',     tx:25, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spike',     tx:26, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spikeCeil', tx:27, ty:1,                tw:2, th:1},
+      {type:'platform',  tx:32, ty:GROUND_Y/TILE-3, tw:3, th:.5},
+      {type:'spike',     tx:37, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil', tx:42, ty:1,                tw:3, th:1},
+      {type:'spike',     tx:46, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spike',     tx:50, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'spikeCeil', tx:54, ty:1,                tw:1, th:1},
+      {type:'platform',  tx:58, ty:GROUND_Y/TILE-4, tw:2, th:.5},
+      {type:'spike',     tx:62, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil', tx:66, ty:1,                tw:2, th:1},
+      {type:'spike',     tx:70, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spike',     tx:71, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spike',     tx:72, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spike',     tx:76, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil', tx:79, ty:1,                tw:1, th:1},
+    ],
+    coins: [
+      {tx:16,ty:GROUND_Y/TILE-2.5},{tx:21,ty:GROUND_Y/TILE-2.5},{tx:33,ty:GROUND_Y/TILE-4.5},
+      {tx:34,ty:GROUND_Y/TILE-4.5},{tx:38,ty:GROUND_Y/TILE-2.5},{tx:47,ty:GROUND_Y/TILE-2.5},
+      {tx:59,ty:GROUND_Y/TILE-5.5},{tx:63,ty:GROUND_Y/TILE-2.5},{tx:77,ty:GROUND_Y/TILE-2.5},
+    ],
+    items: [{type:'shield', tx:43, ty:GROUND_Y/TILE-2.5}],
+  },
+
+  // ── LEVEL 3 — Walls with gaps ──
+  {
+    name: 'Úzke priechody', color: '#3de88a', bgBiome: 1,
+    speed: 4.5, length: 95,
+    hearts: 3,
+    obstacles: [
+      // Wall with gap in middle
+      {type:'wall', tx:14, ty:1,               tw:.7, th:3.5},
+      {type:'wall', tx:14, ty:5.5,             tw:.7, th:GROUND_Y/TILE-6.5},
+      {type:'spike', tx:18, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spike', tx:22, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      // Wall with gap at top
+      {type:'wall', tx:27, ty:2.5,             tw:.7, th:GROUND_Y/TILE-3.5},
+      {type:'spike', tx:31, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'spikeCeil', tx:35, ty:1,           tw:2, th:1},
+      // Wall with gap at bottom
+      {type:'wall', tx:40, ty:1,               tw:.7, th:GROUND_Y/TILE-3},
+      {type:'spike', tx:44, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil', tx:48, ty:1,           tw:3, th:1},
+      {type:'platform', tx:53, ty:GROUND_Y/TILE-3, tw:3, th:.5},
+      {type:'spike', tx:57, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spike', tx:58, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      // Two walls close
+      {type:'wall', tx:63, ty:1,               tw:.7, th:3},
+      {type:'wall', tx:63, ty:5,               tw:.7, th:GROUND_Y/TILE-6},
+      {type:'wall', tx:67, ty:1,               tw:.7, th:GROUND_Y/TILE-3.5},
+      {type:'spike', tx:71, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil', tx:74, ty:1,           tw:2, th:1},
+      {type:'spike', tx:78, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'spikeCeil', tx:82, ty:1,           tw:2, th:1},
+    ],
+    coins: [
+      {tx:14.35,ty:4.2},{tx:28,ty:GROUND_Y/TILE-2},{tx:32,ty:GROUND_Y/TILE-2.5},
+      {tx:41,ty:GROUND_Y/TILE-2},{tx:45,ty:GROUND_Y/TILE-2.5},{tx:54,ty:GROUND_Y/TILE-4.5},
+      {tx:55,ty:GROUND_Y/TILE-4.5},{tx:64.35,ty:4.2},{tx:72,ty:GROUND_Y/TILE-2.5},
+    ],
+    items: [{type:'shield', tx:52, ty:GROUND_Y/TILE-5}],
+  },
+
+  // ── LEVEL 4 — Platforms above spikes ──
+  {
+    name: 'Platformy', color: '#38c8ff', bgBiome: 1,
+    speed: 4.8, length: 100,
+    hearts: 3,
+    obstacles: [
+      {type:'spike',    tx:14, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'platform', tx:14, ty:GROUND_Y/TILE-4, tw:2, th:.5},
+      {type:'spike',    tx:19, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'platform', tx:20, ty:GROUND_Y/TILE-3, tw:2, th:.5},
+      {type:'spike',    tx:24, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'platform', tx:25, ty:GROUND_Y/TILE-5, tw:2, th:.5},
+      {type:'spikeCeil',tx:28, ty:1,               tw:3, th:1},
+      {type:'spike',    tx:32, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'platform', tx:33, ty:GROUND_Y/TILE-3, tw:3, th:.5},
+      {type:'spikeCeil',tx:37, ty:1,               tw:2, th:1},
+      {type:'spike',    tx:40, ty:GROUND_Y/TILE-1, tw:4, th:1},
+      {type:'platform', tx:40, ty:GROUND_Y/TILE-4, tw:3, th:.5},
+      {type:'spikeCeil',tx:45, ty:1,               tw:2, th:1},
+      {type:'spike',    tx:50, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'platform', tx:51, ty:GROUND_Y/TILE-3, tw:2, th:.5},
+      {type:'spike',    tx:55, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'platform', tx:55, ty:GROUND_Y/TILE-5, tw:2, th:.5},
+      {type:'platform', tx:60, ty:GROUND_Y/TILE-4, tw:2, th:.5},
+      {type:'spike',    tx:60, ty:GROUND_Y/TILE-1, tw:4, th:1},
+      {type:'spikeCeil',tx:65, ty:1,               tw:3, th:1},
+      {type:'spike',    tx:68, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'platform', tx:69, ty:GROUND_Y/TILE-3, tw:3, th:.5},
+      {type:'spike',    tx:74, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'spikeCeil',tx:77, ty:1,               tw:2, th:1},
+      {type:'spike',    tx:82, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spike',    tx:85, ty:GROUND_Y/TILE-1, tw:3, th:1},
+    ],
+    coins: [
+      {tx:15,ty:GROUND_Y/TILE-5.5},{tx:21,ty:GROUND_Y/TILE-4.5},{tx:26,ty:GROUND_Y/TILE-6.5},
+      {tx:34,ty:GROUND_Y/TILE-4.5},{tx:35,ty:GROUND_Y/TILE-4.5},{tx:41,ty:GROUND_Y/TILE-5.5},
+      {tx:52,ty:GROUND_Y/TILE-4.5},{tx:56,ty:GROUND_Y/TILE-6.5},{tx:61,ty:GROUND_Y/TILE-5.5},
+      {tx:70,ty:GROUND_Y/TILE-4.5},{tx:75,ty:GROUND_Y/TILE-2.5},
+    ],
+    items: [{type:'shield', tx:47, ty:GROUND_Y/TILE-2}],
+  },
+
+  // ── LEVEL 5 — Tight corridors + timing ──
+  {
+    name: 'Rytmus', color: '#b97bff', bgBiome: 2,
+    speed: 5.2, length: 105,
+    hearts: 3,
+    obstacles: [
+      {type:'spike',    tx:12, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spikeCeil',tx:14, ty:1,               tw:1, th:1},
+      {type:'spike',    tx:16, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil',tx:19, ty:1,               tw:2, th:1},
+      {type:'spike',    tx:22, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spikeCeil',tx:24, ty:1,               tw:1, th:1},
+      {type:'spike',    tx:26, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      // Wide platform section
+      {type:'platform', tx:31, ty:GROUND_Y/TILE-4, tw:3, th:.5},
+      {type:'spike',    tx:31, ty:GROUND_Y/TILE-1, tw:5, th:1},
+      {type:'spikeCeil',tx:35, ty:1,               tw:2, th:1},
+      {type:'spike',    tx:38, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil',tx:41, ty:1,               tw:2, th:1},
+      {type:'spike',    tx:45, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'platform', tx:46, ty:GROUND_Y/TILE-4, tw:2, th:.5},
+      {type:'spikeCeil',tx:49, ty:1,               tw:3, th:1},
+      {type:'spike',    tx:53, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil',tx:56, ty:1,               tw:1, th:1},
+      {type:'spike',    tx:58, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spikeCeil',tx:60, ty:1,               tw:2, th:1},
+      {type:'spike',    tx:63, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'spikeCeil',tx:67, ty:1,               tw:3, th:1},
+      {type:'spike',    tx:71, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil',tx:74, ty:1,               tw:2, th:1},
+      {type:'spike',    tx:78, ty:GROUND_Y/TILE-1, tw:4, th:1},
+      {type:'platform', tx:79, ty:GROUND_Y/TILE-4, tw:2, th:.5},
+      {type:'spikeCeil',tx:83, ty:1,               tw:3, th:1},
+      {type:'spike',    tx:87, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil',tx:90, ty:1,               tw:2, th:1},
+    ],
+    coins: [
+      {tx:13,ty:GROUND_Y/TILE-2.5},{tx:17,ty:GROUND_Y/TILE-2.5},{tx:32,ty:GROUND_Y/TILE-5.5},
+      {tx:33,ty:GROUND_Y/TILE-5.5},{tx:39,ty:GROUND_Y/TILE-2.5},{tx:47,ty:GROUND_Y/TILE-5.5},
+      {tx:54,ty:GROUND_Y/TILE-2.5},{tx:64,ty:GROUND_Y/TILE-2.5},{tx:80,ty:GROUND_Y/TILE-5.5},
+      {tx:88,ty:GROUND_Y/TILE-2.5},
+    ],
+    items: [{type:'shield', tx:29, ty:GROUND_Y/TILE-2}],
+  },
+
+  // ── LEVEL 6 — Moving obstacles intro ──
+  {
+    name: 'Živé peklo', color: '#ff4040', bgBiome: 2,
+    speed: 5.5, length: 110,
+    hearts: 3,
+    obstacles: [
+      {type:'spike',    tx:14, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil',tx:17, ty:1,               tw:2, th:1},
+      {type:'movingV',  tx:22, tw:1, th:1.2, color:'#ff4040',
+       y1: T(GROUND_Y/TILE-3.5), y2: T(GROUND_Y/TILE-1), spd:1.8},
+      {type:'spike',    tx:28, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'spikeCeil',tx:32, ty:1,               tw:2, th:1},
+      {type:'movingV',  tx:37, tw:1, th:1.2, color:'#ff4040',
+       y1: T(1), y2: T(GROUND_Y/TILE-3.5), spd:1.8},
+      {type:'spike',    tx:42, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'movingV',  tx:47, tw:1, th:1.2, color:'#ff8c00',
+       y1: T(GROUND_Y/TILE-3.5), y2: T(GROUND_Y/TILE-1), spd:2.2},
+      {type:'movingV',  tx:52, tw:1, th:1.2, color:'#ff8c00',
+       y1: T(1), y2: T(GROUND_Y/TILE-3.5), spd:2.2},
+      {type:'spikeCeil',tx:57, ty:1,               tw:3, th:1},
+      {type:'spike',    tx:61, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'movingV',  tx:66, tw:1, th:1.4, color:'#ff4040',
+       y1: T(GROUND_Y/TILE-4), y2: T(GROUND_Y/TILE-1), spd:2.5},
+      {type:'spike',    tx:71, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'spikeCeil',tx:75, ty:1,               tw:2, th:1},
+      {type:'movingV',  tx:80, tw:1, th:1.2, color:'#ff4040',
+       y1: T(1), y2: T(GROUND_Y/TILE-3.5), spd:2.0},
+      {type:'movingV',  tx:85, tw:1, th:1.2, color:'#ff4040',
+       y1: T(GROUND_Y/TILE-3.5), y2: T(GROUND_Y/TILE-1), spd:2.0},
+      {type:'spike',    tx:90, ty:GROUND_Y/TILE-1, tw:4, th:1},
+      {type:'spikeCeil',tx:94, ty:1,               tw:3, th:1},
+    ],
+    coins: [
+      {tx:15,ty:GROUND_Y/TILE-2.5},{tx:18,ty:GROUND_Y/TILE-2.5},{tx:29,ty:GROUND_Y/TILE-2.5},
+      {tx:43,ty:GROUND_Y/TILE-2.5},{tx:58,ty:GROUND_Y/TILE-2.5},{tx:62,ty:GROUND_Y/TILE-2.5},
+      {tx:72,ty:GROUND_Y/TILE-2.5},{tx:91,ty:GROUND_Y/TILE-2.5},
+    ],
+    items: [{type:'shield', tx:26, ty:GROUND_Y/TILE-2}],
+  },
+
+  // ── LEVEL 7 — Complex combos ──
+  {
+    name: 'Keksový chaos', color: '#3de88a', bgBiome: 3,
+    speed: 5.8, length: 115,
+    hearts: 3,
+    obstacles: [
+      {type:'spike',    tx:12, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spikeCeil',tx:13, ty:1,               tw:1, th:1},
+      {type:'spike',    tx:15, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil',tx:18, ty:1,               tw:2, th:1},
+      {type:'platform', tx:22, ty:GROUND_Y/TILE-4, tw:2, th:.5},
+      {type:'spike',    tx:22, ty:GROUND_Y/TILE-1, tw:4, th:1},
+      {type:'spikeCeil',tx:27, ty:1,               tw:3, th:1},
+      {type:'movingV',  tx:32, tw:1, th:1.2, color:'#3de88a',
+       y1: T(GROUND_Y/TILE-3), y2: T(GROUND_Y/TILE-1), spd:2.0},
+      {type:'spike',    tx:36, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'spikeCeil',tx:40, ty:1,               tw:2, th:1},
+      {type:'wall',     tx:44, ty:1,               tw:.7, th:3.5},
+      {type:'wall',     tx:44, ty:5.5,             tw:.7, th:GROUND_Y/TILE-6.5},
+      {type:'spike',    tx:48, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'movingV',  tx:52, tw:1, th:1.2, color:'#3de88a',
+       y1: T(1), y2: T(GROUND_Y/TILE-3.5), spd:2.3},
+      {type:'spike',    tx:56, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'spikeCeil',tx:60, ty:1,               tw:2, th:1},
+      {type:'platform', tx:64, ty:GROUND_Y/TILE-4, tw:3, th:.5},
+      {type:'spike',    tx:64, ty:GROUND_Y/TILE-1, tw:5, th:1},
+      {type:'spikeCeil',tx:70, ty:1,               tw:3, th:1},
+      {type:'movingV',  tx:75, tw:1, th:1.4, color:'#f5c842',
+       y1: T(GROUND_Y/TILE-4), y2: T(GROUND_Y/TILE-1), spd:2.5},
+      {type:'spike',    tx:79, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil',tx:82, ty:1,               tw:3, th:1},
+      {type:'spike',    tx:87, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'movingV',  tx:92, tw:1, th:1.2, color:'#3de88a',
+       y1: T(1), y2: T(GROUND_Y/TILE-3.5), spd:2.8},
+      {type:'spike',    tx:96, ty:GROUND_Y/TILE-1, tw:4, th:1},
+    ],
+    coins: [
+      {tx:13,ty:GROUND_Y/TILE-2.5},{tx:16,ty:GROUND_Y/TILE-2.5},{tx:23,ty:GROUND_Y/TILE-5.5},
+      {tx:37,ty:GROUND_Y/TILE-2.5},{tx:44.35,ty:4.2},{tx:49,ty:GROUND_Y/TILE-2.5},
+      {tx:65,ty:GROUND_Y/TILE-5.5},{tx:66,ty:GROUND_Y/TILE-5.5},{tx:80,ty:GROUND_Y/TILE-2.5},
+      {tx:88,ty:GROUND_Y/TILE-2.5},{tx:97,ty:GROUND_Y/TILE-2.5},
+    ],
+    items: [{type:'shield', tx:34, ty:GROUND_Y/TILE-2}],
+  },
+
+  // ── LEVEL 8 — Fast + dense ──
+  {
+    name: 'Keksová búrka', color: '#ff6600', bgBiome: 3,
+    speed: 6.2, length: 120,
+    hearts: 2,
+    obstacles: [
+      {type:'spike',    tx:11, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil',tx:14, ty:1,               tw:2, th:1},
+      {type:'spike',    tx:18, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spikeCeil',tx:20, ty:1,               tw:1, th:1},
+      {type:'spike',    tx:22, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil',tx:25, ty:1,               tw:2, th:1},
+      {type:'movingV',  tx:29, tw:1, th:1.2, color:'#ff6600',
+       y1: T(GROUND_Y/TILE-3.5), y2: T(GROUND_Y/TILE-1), spd:2.5},
+      {type:'spike',    tx:33, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'spikeCeil',tx:37, ty:1,               tw:3, th:1},
+      {type:'platform', tx:38, ty:GROUND_Y/TILE-4, tw:2, th:.5},
+      {type:'spike',    tx:42, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'movingV',  tx:46, tw:1, th:1.4, color:'#ff4040',
+       y1: T(1), y2: T(GROUND_Y/TILE-3.5), spd:2.8},
+      {type:'spikeCeil',tx:50, ty:1,               tw:3, th:1},
+      {type:'spike',    tx:54, ty:GROUND_Y/TILE-1, tw:4, th:1},
+      {type:'platform', tx:55, ty:GROUND_Y/TILE-4, tw:2, th:.5},
+      {type:'movingV',  tx:60, tw:1, th:1.2, color:'#ff6600',
+       y1: T(GROUND_Y/TILE-3.5), y2: T(GROUND_Y/TILE-1), spd:3.0},
+      {type:'spikeCeil',tx:64, ty:1,               tw:3, th:1},
+      {type:'spike',    tx:68, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'movingV',  tx:72, tw:1, th:1.4, color:'#ff4040',
+       y1: T(1), y2: T(GROUND_Y/TILE-4), spd:3.0},
+      {type:'movingV',  tx:77, tw:1, th:1.2, color:'#ff4040',
+       y1: T(GROUND_Y/TILE-3.5), y2: T(GROUND_Y/TILE-1), spd:3.0},
+      {type:'spike',    tx:82, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'spikeCeil',tx:86, ty:1,               tw:3, th:1},
+      {type:'spike',    tx:91, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil',tx:94, ty:1,               tw:2, th:1},
+      {type:'spike',    tx:98, ty:GROUND_Y/TILE-1, tw:4, th:1},
+      {type:'spikeCeil',tx:103,ty:1,               tw:3, th:1},
+    ],
+    coins: [
+      {tx:12,ty:GROUND_Y/TILE-2.5},{tx:15,ty:GROUND_Y/TILE-2.5},{tx:19,ty:GROUND_Y/TILE-2.5},
+      {tx:34,ty:GROUND_Y/TILE-2.5},{tx:39,ty:GROUND_Y/TILE-5.5},{tx:43,ty:GROUND_Y/TILE-2.5},
+      {tx:56,ty:GROUND_Y/TILE-5.5},{tx:69,ty:GROUND_Y/TILE-2.5},{tx:83,ty:GROUND_Y/TILE-2.5},
+      {tx:99,ty:GROUND_Y/TILE-2.5},{tx:100,ty:GROUND_Y/TILE-2.5},
+    ],
+    items: [{type:'shield', tx:44, ty:GROUND_Y/TILE-2}],
+  },
+
+  // ── LEVEL 9 — Gauntlet ──
+  {
+    name: 'Gauntlet', color: '#b97bff', bgBiome: 3,
+    speed: 6.6, length: 125,
+    hearts: 2,
+    obstacles: [
+      {type:'spike',    tx:10, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spikeCeil',tx:12, ty:1,               tw:1, th:1},
+      {type:'spike',    tx:14, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil',tx:17, ty:1,               tw:2, th:1},
+      {type:'spike',    tx:21, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'movingV',  tx:26, tw:1, th:1.4, color:'#b97bff',
+       y1: T(GROUND_Y/TILE-4), y2: T(GROUND_Y/TILE-1), spd:2.5},
+      {type:'spikeCeil',tx:30, ty:1,               tw:3, th:1},
+      {type:'spike',    tx:34, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'movingV',  tx:38, tw:1, th:1.4, color:'#b97bff',
+       y1: T(1), y2: T(GROUND_Y/TILE-3.5), spd:2.5},
+      {type:'wall',     tx:43, ty:1,               tw:.7, th:3.2},
+      {type:'wall',     tx:43, ty:5.2,             tw:.7, th:GROUND_Y/TILE-6.2},
+      {type:'spike',    tx:47, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'spikeCeil',tx:51, ty:1,               tw:3, th:1},
+      {type:'movingV',  tx:56, tw:1, th:1.4, color:'#ff4040',
+       y1: T(GROUND_Y/TILE-4), y2: T(GROUND_Y/TILE-1), spd:3.0},
+      {type:'movingV',  tx:61, tw:1, th:1.4, color:'#ff4040',
+       y1: T(1), y2: T(GROUND_Y/TILE-4), spd:3.0},
+      {type:'spike',    tx:66, ty:GROUND_Y/TILE-1, tw:4, th:1},
+      {type:'spikeCeil',tx:71, ty:1,               tw:4, th:1},
+      {type:'platform', tx:72, ty:GROUND_Y/TILE-4, tw:2, th:.5},
+      {type:'movingV',  tx:77, tw:1, th:1.6, color:'#b97bff',
+       y1: T(GROUND_Y/TILE-5), y2: T(GROUND_Y/TILE-1), spd:3.2},
+      {type:'spike',    tx:82, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'spikeCeil',tx:86, ty:1,               tw:3, th:1},
+      {type:'movingV',  tx:91, tw:1, th:1.4, color:'#b97bff',
+       y1: T(1), y2: T(GROUND_Y/TILE-3.5), spd:3.5},
+      {type:'movingV',  tx:96, tw:1, th:1.4, color:'#ff4040',
+       y1: T(GROUND_Y/TILE-4), y2: T(GROUND_Y/TILE-1), spd:3.5},
+      {type:'spike',    tx:101,ty:GROUND_Y/TILE-1, tw:4, th:1},
+      {type:'spikeCeil',tx:106,ty:1,               tw:4, th:1},
+      {type:'spike',    tx:111,ty:GROUND_Y/TILE-1, tw:3, th:1},
+    ],
+    coins: [
+      {tx:11,ty:GROUND_Y/TILE-2.5},{tx:15,ty:GROUND_Y/TILE-2.5},{tx:22,ty:GROUND_Y/TILE-2.5},
+      {tx:31,ty:GROUND_Y/TILE-2.5},{tx:35,ty:GROUND_Y/TILE-2.5},{tx:43.35,ty:4.2},
+      {tx:48,ty:GROUND_Y/TILE-2.5},{tx:67,ty:GROUND_Y/TILE-2.5},{tx:73,ty:GROUND_Y/TILE-5.5},
+      {tx:83,ty:GROUND_Y/TILE-2.5},{tx:102,ty:GROUND_Y/TILE-2.5},{tx:112,ty:GROUND_Y/TILE-2.5},
+    ],
+    items: [{type:'shield', tx:23, ty:GROUND_Y/TILE-2},{type:'shield', tx:63, ty:GROUND_Y/TILE-2}],
+  },
+
+  // ── LEVEL 10 — The Final Cookie ──
+  {
+    name: 'Finálny Cookie', color: '#f5c842', bgBiome: 3,
+    speed: 7.0, length: 130,
+    hearts: 2,
+    obstacles: [
+      // Section 1: fast spike run
+      {type:'spike',    tx:10, ty:GROUND_Y/TILE-1, tw:1, th:1},
+      {type:'spikeCeil',tx:12, ty:1,               tw:1, th:1},
+      {type:'spike',    tx:14, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil',tx:17, ty:1,               tw:2, th:1},
+      {type:'spike',    tx:21, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      {type:'spikeCeil',tx:24, ty:1,               tw:2, th:1},
+      // Section 2: moving + spikes
+      {type:'movingV',  tx:29, tw:1, th:1.4, color:'#f5c842',
+       y1: T(GROUND_Y/TILE-4), y2: T(GROUND_Y/TILE-1), spd:2.8},
+      {type:'spike',    tx:33, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'spikeCeil',tx:37, ty:1,               tw:2, th:1},
+      {type:'movingV',  tx:41, tw:1, th:1.4, color:'#f5c842',
+       y1: T(1), y2: T(GROUND_Y/TILE-3.5), spd:3.0},
+      // Section 3: wall gauntlet
+      {type:'wall',     tx:46, ty:1,               tw:.7, th:3.2},
+      {type:'wall',     tx:46, ty:5.2,             tw:.7, th:GROUND_Y/TILE-6.2},
+      {type:'spike',    tx:50, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'spikeCeil',tx:54, ty:1,               tw:3, th:1},
+      {type:'wall',     tx:58, ty:1,               tw:.7, th:GROUND_Y/TILE-3.5},
+      {type:'spike',    tx:62, ty:GROUND_Y/TILE-1, tw:2, th:1},
+      // Section 4: platform precision
+      {type:'spike',    tx:66, ty:GROUND_Y/TILE-1, tw:4, th:1},
+      {type:'platform', tx:66, ty:GROUND_Y/TILE-4, tw:3, th:.5},
+      {type:'spikeCeil',tx:71, ty:1,               tw:3, th:1},
+      // Section 5: double movers
+      {type:'movingV',  tx:76, tw:1, th:1.6, color:'#ff4040',
+       y1: T(GROUND_Y/TILE-5), y2: T(GROUND_Y/TILE-1), spd:3.2},
+      {type:'movingV',  tx:81, tw:1, th:1.6, color:'#ff4040',
+       y1: T(1), y2: T(GROUND_Y/TILE-4), spd:3.2},
+      {type:'spike',    tx:86, ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'spikeCeil',tx:90, ty:1,               tw:3, th:1},
+      // Section 6: finale
+      {type:'movingV',  tx:95, tw:1, th:1.4, color:'#f5c842',
+       y1: T(GROUND_Y/TILE-4), y2: T(GROUND_Y/TILE-1), spd:3.5},
+      {type:'movingV',  tx:100,tw:1, th:1.4, color:'#f5c842',
+       y1: T(1), y2: T(GROUND_Y/TILE-4), spd:3.5},
+      {type:'spike',    tx:105,ty:GROUND_Y/TILE-1, tw:3, th:1},
+      {type:'spikeCeil',tx:109,ty:1,               tw:3, th:1},
+      {type:'spike',    tx:114,ty:GROUND_Y/TILE-1, tw:4, th:1},
+      {type:'spikeCeil',tx:119,ty:1,               tw:4, th:1},
+    ],
+    coins: [
+      {tx:11,ty:GROUND_Y/TILE-2.5},{tx:15,ty:GROUND_Y/TILE-2.5},{tx:22,ty:GROUND_Y/TILE-2.5},
+      {tx:34,ty:GROUND_Y/TILE-2.5},{tx:46.35,ty:4.2},{tx:51,ty:GROUND_Y/TILE-2.5},
+      {tx:63,ty:GROUND_Y/TILE-2.5},{tx:67,ty:GROUND_Y/TILE-5.5},{tx:68,ty:GROUND_Y/TILE-5.5},
+      {tx:87,ty:GROUND_Y/TILE-2.5},{tx:96,ty:GROUND_Y/TILE-2.5},{tx:106,ty:GROUND_Y/TILE-2.5},
+      {tx:115,ty:GROUND_Y/TILE-2.5},{tx:116,ty:GROUND_Y/TILE-2.5},
+    ],
+    items: [
+      {type:'shield', tx:27, ty:GROUND_Y/TILE-2},
+      {type:'shield', tx:73, ty:GROUND_Y/TILE-2},
+    ],
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════
+//  BUILD RUNTIME OBSTACLES from level definition
+// ═══════════════════════════════════════════════════════════════
+function buildObstacles(levelDef) {
+  const list = [];
+  for (const o of levelDef.obstacles) {
+    if (o.type === 'movingV') {
+      list.push({
+        type: 'movingV',
+        x: T(o.tx), y: o.y1,
+        w: T(o.tw), h: T(o.th),
+        y1: o.y1, y2: o.y2, spd: o.spd,
+        dir: 1, color: o.color || '#ff4040',
+      });
+    } else {
+      list.push({
+        type: o.type,
+        x: T(o.tx), y: T(o.ty),
+        w: T(o.tw), h: T(o.th),
+        color: o.color || levelDef.color,
+      });
+    }
   }
-  if(paused){ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(0,0,W,H);ctx.font="bold 2.8rem 'Fredoka One'";ctx.fillStyle='#f5c842';ctx.textAlign='center';ctx.shadowColor='#f5c842';ctx.shadowBlur=28;ctx.fillText('⏸ PAUZA',W/2,H/2);ctx.shadowBlur=0;ctx.textAlign='left';}
+  return list;
 }
-function drawFloor(){
-  const bm=BIOMES[curBiome];
-  const g=ctx.createLinearGradient(0,GROUND,0,H);g.addColorStop(0,bm.gc);g.addColorStop(1,'#030201');ctx.fillStyle=g;ctx.fillRect(0,GROUND,W,H-GROUND);
-  ctx.strokeStyle=bm.gl;ctx.lineWidth=2;ctx.shadowColor=bm.gl;ctx.shadowBlur=10;ctx.beginPath();ctx.moveTo(0,GROUND);ctx.lineTo(W,GROUND);ctx.stroke();ctx.shadowBlur=0;
-  ctx.fillStyle='rgba(255,255,255,.025)';ctx.fillRect(0,0,W,CEIL);
-  ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,CEIL);ctx.lineTo(W,CEIL);ctx.stroke();
+
+function buildCoins(levelDef) {
+  return levelDef.coins.map(c => ({
+    x: T(c.tx), y: T(c.ty), taken: false,
+    bob: Math.random() * Math.PI * 2,
+  }));
 }
-function drawObs(o,sx){
-  ctx.save();ctx.shadowColor=o.c;ctx.shadowBlur=10;ctx.strokeStyle=o.c;ctx.lineWidth=2;ctx.fillStyle=o.c+'55';
-  if(o.t==='s'||o.t==='sc'){const flip=o.t==='sc',n=Math.max(1,Math.round(o.w/20)),sw=o.w/n;
-    for(let i=0;i<n;i++){ctx.beginPath();if(!flip){ctx.moveTo(sx+i*sw,o.y+o.h);ctx.lineTo(sx+i*sw+sw/2,o.y+1);ctx.lineTo(sx+i*sw+sw,o.y+o.h);}else{ctx.moveTo(sx+i*sw,o.y);ctx.lineTo(sx+i*sw+sw/2,o.y+o.h-1);ctx.lineTo(sx+i*sw+sw,o.y);}ctx.closePath();ctx.fill();ctx.stroke();}}
-  else if(o.t==='w'){ctx.fillRect(sx,o.y,o.w,o.h);ctx.strokeRect(sx,o.y,o.w,o.h);ctx.strokeStyle=o.c+'44';ctx.lineWidth=1;for(let y=o.y+14;y<o.y+o.h-5;y+=20){ctx.beginPath();ctx.moveTo(sx+3,y);ctx.lineTo(sx+o.w-3,y);ctx.stroke();}}
-  else{ctx.shadowBlur=14;ctx.fillStyle=o.c+'88';ctx.beginPath();ctx.roundRect(sx,o.y,o.w,o.h,5);ctx.fill();ctx.stroke();ctx.fillStyle='rgba(255,255,255,.14)';ctx.beginPath();ctx.roundRect(sx+4,o.y+2,o.w-8,4,2);ctx.fill();}
+
+function buildItems(levelDef) {
+  return (levelDef.items || []).map(i => ({
+    type: i.type,
+    x: T(i.tx), y: T(i.ty), taken: false,
+    bob: Math.random() * Math.PI * 2,
+  }));
+}
+
+// ── RANDOM LEVEL GENERATOR ──
+function generateRandomLevel(seed) {
+  const rng = mulberry32(seed || Date.now());
+  const rand = (a, b) => a + rng() * (b - a);
+  const randInt = (a, b) => Math.floor(rand(a, b + 1));
+
+  const difficulty = 0.5 + rng() * 0.5;
+  const obstacles = [];
+  const coins = [];
+  const items = [];
+  let x = 12;
+  const len = 90 + randInt(0, 30);
+
+  while (x < len - 8) {
+    const t = rng();
+    if (t < 0.35) {
+      const n = randInt(1, Math.max(1, Math.floor(2 + difficulty * 2)));
+      for (let i = 0; i < n; i++) {
+        obstacles.push({type:'spike', tx: x + i, ty: GROUND_Y/TILE-1, tw:1, th:1});
+      }
+      // safe coins above
+      if (rng() < 0.6) coins.push({tx: x + n/2 - 0.5, ty: GROUND_Y/TILE - 2.5});
+      x += n + 3 + randInt(0, 4);
+    } else if (t < 0.55) {
+      const n = randInt(1, Math.max(1, Math.floor(1 + difficulty * 2)));
+      for (let i = 0; i < n; i++) {
+        obstacles.push({type:'spikeCeil', tx: x + i, ty: 1, tw:1, th:1});
+      }
+      if (rng() < 0.5) coins.push({tx: x + n/2 - 0.5, ty: GROUND_Y/TILE - 2.5});
+      x += n + 3 + randInt(0, 4);
+    } else if (t < 0.68) {
+      const gapY = 1.5 + rng() * 3;
+      const gapH = 2.5 + rng() * 1.5;
+      obstacles.push({type:'wall', tx: x, ty: 1,       tw:.7, th: gapY - 1});
+      obstacles.push({type:'wall', tx: x, ty: gapY + gapH, tw:.7, th: GROUND_Y/TILE - gapY - gapH});
+      coins.push({tx: x + 0.35, ty: gapY + gapH/2 - 0.5});
+      x += 4 + randInt(2, 5);
+    } else if (t < 0.80) {
+      const py = GROUND_Y/TILE - 3 - rng() * 2;
+      obstacles.push({type:'platform', tx: x, ty: py, tw:2, th:.5});
+      const n = randInt(1, 3);
+      for (let i = 0; i < n; i++) obstacles.push({type:'spike', tx: x+i, ty:GROUND_Y/TILE-1, tw:1, th:1});
+      coins.push({tx: x + 0.5, ty: py - 1.5});
+      x += 5 + randInt(1, 4);
+    } else {
+      // moving
+      const fromTop = rng() < 0.5;
+      obstacles.push({type:'movingV', tx: x, tw:1, th:1.2,
+        y1: fromTop ? T(1) : T(GROUND_Y/TILE - 3.5),
+        y2: fromTop ? T(GROUND_Y/TILE - 3.5) : T(GROUND_Y/TILE - 1),
+        spd: 1.8 + difficulty * 1.5, color: '#ff6600'});
+      x += 5 + randInt(2, 5);
+    }
+
+    if (rng() < 0.08) items.push({type:'shield', tx: x - 3, ty: GROUND_Y/TILE - 2.5});
+  }
+
+  return {
+    name: 'Náhodný', color: '#b97bff', bgBiome: Math.floor(rng()*4)|0,
+    speed: 4.5 + difficulty * 2, length: len,
+    hearts: 3, isRandom: true,
+    obstacles, coins, items,
+  };
+}
+
+function mulberry32(a) {
+  return function() {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  GAME STATE
+// ═══════════════════════════════════════════════════════════════
+let state = 'menu';
+let currentLevelIdx = 0; // 0-9 = levels, -1 = random
+let currentLevelDef = null;
+let paused = false;
+let frame = 0;
+let camX = 0;
+let levelComplete = false;
+let runCoins = 0;
+let startTime = 0;
+let tookHit = false;
+
+// Player — all coords in internal space
+const P = {
+  x: 80, y: 0,
+  vx: 0, vy: 0,
+  w: TILE - 4, h: TILE - 4, // 36×36
+  onGround: false,
+  dead: false,
+  angle: 0,
+  skin: SKINS[0],
+  shield: false, shieldT: 0,
+};
+
+let obstacles = [];
+let coinObjs  = [];
+let itemObjs  = [];
+let particles = [];
+let floatTxts = [];
+let hearts    = 3;
+
+// ═══════════════════════════════════════════════════════════════
+//  PHYSICS — pixel-perfect AABB
+// ═══════════════════════════════════════════════════════════════
+const GRAVITY = 0.55;
+const JUMP_VY = -11.5;
+
+function physicsStep() {
+  // Gravity
+  P.vy += GRAVITY;
+  if (P.vy > 14) P.vy = 14;
+
+  // Horizontal: player stays fixed, world scrolls
+  camX += currentLevelDef.speed;
+
+  // Vertical move + collision
+  P.y += P.vy;
+  P.onGround = false;
+
+  // Update moving obstacles BEFORE collision
+  for (const o of obstacles) {
+    if (o.type === 'movingV') {
+      o.y += o.spd * o.dir;
+      if (o.y >= o.y2) { o.y = o.y2; o.dir = -1; }
+      if (o.y <= o.y1) { o.y = o.y1; o.dir =  1; }
+    }
+  }
+
+  // Solid collision (platforms + walls)
+  for (const o of obstacles) {
+    if (o.type === 'spike' || o.type === 'spikeCeil') continue;
+    const ox = o.x - camX + P.x; // world to screen offset — but we work in world space
+    // All in world coords: player rect = [camX + P.x, P.y, P.w, P.h]
+    const px = camX + P.x, py = P.y;
+
+    if (o.type === 'platform') {
+      // one-way: only from top
+      const prevBottom = py - P.vy + P.h; // bottom before move
+      if (rectsOverlapX(px, py, P.w, P.h, o.x, o.y, o.w, o.h * 1.5)) {
+        if (prevBottom <= o.y + 2 && P.vy >= 0) {
+          P.y = o.y - P.h;
+          P.vy = 0;
+          P.onGround = true;
+        }
+      }
+    } else if (o.type === 'wall' || o.type === 'movingV') {
+      if (rectsOverlap(px, py, P.w, P.h, o.x, o.y, o.w, o.h)) {
+        // resolve: push out of shortest axis
+        resolveCollision(o);
+      }
+    }
+  }
+
+  // Ground & ceiling
+  if (P.y + P.h >= GROUND_Y) {
+    P.y = GROUND_Y - P.h;
+    P.vy = 0;
+    P.onGround = true;
+  }
+  if (P.y <= CEIL_Y) {
+    P.y = CEIL_Y;
+    P.vy = 0;
+  }
+
+  // Angle
+  if (!P.onGround) P.angle += 0.07;
+  else P.angle = snapAngle(P.angle);
+}
+
+function resolveCollision(o) {
+  const px = camX + P.x, py = P.y;
+  const ox = o.x, oy = o.y;
+
+  const overlapLeft  = (px + P.w) - ox;
+  const overlapRight = (ox + o.w) - px;
+  const overlapTop   = (py + P.h) - oy;
+  const overlapBot   = (oy + o.h) - py;
+
+  const minH = Math.min(overlapLeft, overlapRight);
+  const minV = Math.min(overlapTop,  overlapBot);
+
+  if (minV < minH) {
+    if (overlapTop < overlapBot) {
+      P.y = oy - P.h;
+      P.vy = 0;
+      P.onGround = true;
+    } else {
+      P.y = oy + o.h;
+      if (P.vy < 0) P.vy = 0;
+    }
+  } else {
+    // horizontal push — treat as lethal for wall (shouldn't happen at normal speeds)
+    // actually just kill via spike detection below, walls are passable horizontally in normal play
+  }
+}
+
+function snapAngle(a) {
+  const target = Math.round(a / (Math.PI / 2)) * (Math.PI / 2);
+  return a + (target - a) * 0.3;
+}
+
+function rectsOverlap(ax,ay,aw,ah,bx,by,bw,bh) {
+  return ax < bx+bw && ax+aw > bx && ay < by+bh && ay+ah > by;
+}
+function rectsOverlapX(ax,ay,aw,ah,bx,by,bw,bh) {
+  return ax < bx+bw && ax+aw > bx;
+}
+
+// ── SPIKE / HAZARD COLLISION ──
+function checkHazards() {
+  const px = camX + P.x, py = P.y;
+  // Small hitbox (shrink 4px all sides for fairness)
+  const hx = px + 5, hy = py + 5, hw = P.w - 10, hh = P.h - 10;
+
+  for (const o of obstacles) {
+    if (o.type === 'wall' || o.type === 'platform') continue;
+
+    let hit = false;
+    if (o.type === 'spike' || o.type === 'spikeCeil' || o.type === 'movingV') {
+      if (o.type === 'spike' || o.type === 'spikeCeil') {
+        // triangle hitbox: reduce further
+        const sx = hx, sy = hy, sw = hw, sh = hh;
+        // for spike: dangerous only in top 80% of spike height
+        const dangerH = o.h * 0.82;
+        const dangerY = o.type === 'spike' ? o.y : o.y + o.h - dangerH;
+        hit = rectsOverlap(sx, sy, sw, sh, o.x + o.w*0.15, dangerY, o.w*0.7, dangerH);
+      } else {
+        // movingV: full rect
+        hit = rectsOverlap(hx, hy, hw, hh, o.x, o.y, o.w, o.h);
+      }
+    }
+    if (hit) { takeDamage(); return; }
+  }
+}
+
+// ── COIN / ITEM COLLECTION ──
+function checkPickups() {
+  const px = camX + P.x, py = P.y;
+  const cx = px + P.w/2, cy = py + P.h/2;
+
+  for (const c of coinObjs) {
+    if (c.taken) continue;
+    const dx = (c.x + 8) - cx, dy = (c.y + 8) - cy;
+    if (Math.abs(dx) < 24 && Math.abs(dy) < 24) {
+      c.taken = true; runCoins++;
+      document.getElementById('hudCoins').textContent = runCoins;
+      spawnPart(c.x - camX + 8, c.y + 8, '#f5c842', 5);
+      showFloat('+🪙', c.x - camX + 8, c.y, '#f5c842');
+    }
+  }
+  for (const it of itemObjs) {
+    if (it.taken) continue;
+    const dx = (it.x + 14) - cx, dy = (it.y + 14) - cy;
+    if (Math.abs(dx) < 30 && Math.abs(dy) < 30) {
+      it.taken = true; applyItem(it.type);
+    }
+  }
+}
+
+// ── DAMAGE ──
+function takeDamage() {
+  if (P.dead) return;
+  if (P.shield) {
+    P.shield = false; P.shieldT = 0;
+    spawnPart(P.x + P.w/2, P.y + P.h/2, '#3de88a', 12);
+    showFloat('🛡️', P.x, P.y - 10, '#3de88a');
+    return;
+  }
+  tookHit = true;
+  hearts--;
+  updateHeartsUI();
+  spawnPart(P.x + P.w/2, P.y + P.h/2, '#ff4040', 14);
+  if (hearts <= 0) {
+    P.dead = true;
+    setTimeout(() => {
+      state = 'dead';
+      document.getElementById('deathSc').classList.remove('hidden');
+      document.getElementById('dLvl').textContent = currentLevelIdx === -1 ? 'Náhodný' : currentLevelIdx + 1;
+      document.getElementById('dCoins').textContent = runCoins;
+      document.getElementById('hud').classList.add('hidden');
+    }, 600);
+  } else {
+    // brief flash, continue
+    showFloat('💔', P.x, P.y - 10, '#ff4040');
+  }
+}
+
+function applyItem(type) {
+  if (type === 'shield') {
+    P.shield = true; P.shieldT = 500;
+    const el = document.getElementById('itemPop');
+    el.textContent = '🛡️ Štít aktivovaný!'; el.style.display = 'block';
+    clearTimeout(el._t); el._t = setTimeout(() => el.style.display = 'none', 2000);
+    spawnPart(P.x + P.w/2, P.y + P.h/2, '#3de88a', 10);
+    awardMedal('shld_pick');
+  }
+}
+
+// ── WIN CHECK ──
+function checkWin() {
+  if (levelComplete || P.dead) return;
+  const totalW = T(currentLevelDef.length);
+  if (camX >= totalW - IW + P.x + 200) {
+    levelComplete = true;
+    const elapsed = (Date.now() - startTime) / 1000;
+
+    // Stars: 3=nodmg+coins, 2=nodmg or allcoins, 1=finish
+    const totalCoins = currentLevelDef.coins.length;
+    const gotAllCoins = coinObjs.filter(c => c.taken).length >= totalCoins;
+    let starCount = 1;
+    if (!tookHit) starCount = 3;
+    else if (gotAllCoins) starCount = 2;
+
+    SAVE.coins += runCoins;
+    if (!SAVE.done.includes(currentLevelIdx) && currentLevelIdx >= 0) {
+      SAVE.done.push(currentLevelIdx);
+    }
+    const key = currentLevelIdx === -1 ? 'r' : String(currentLevelIdx);
+    if ((SAVE.stars[key] || 0) < starCount) SAVE.stars[key] = starCount;
+    sv();
+
+    // medals
+    if (currentLevelIdx === 0) awardMedal('l1');
+    if (currentLevelIdx === 4) awardMedal('l5');
+    if (currentLevelIdx === 9) awardMedal('l10');
+    if (SAVE.done.length >= 10) awardMedal('all10');
+    if (starCount === 3) awardMedal('3stars');
+    if (!tookHit) awardMedal('nodie');
+    if (elapsed < 30 && starCount === 3) awardMedal('fast');
+    if (currentLevelIdx === -1) awardMedal('random');
+    if (SAVE.coins >= 50) awardMedal('c50');
+    if (SAVE.coins >= 200) awardMedal('c200');
+
+    spawnPart(IW/2, IH/2, '#f5c842', 40);
+
+    setTimeout(() => {
+      state = 'win';
+      const starStr = '⭐'.repeat(starCount) + '☆'.repeat(3-starCount);
+      document.getElementById('winStars').textContent = starStr;
+      document.getElementById('wCoins').textContent = runCoins;
+      document.getElementById('winTitle').textContent = currentLevelIdx === -1 ? 'Náhodný Level!' : `Level ${currentLevelIdx+1} hotový!`;
+      const nextBtn = document.getElementById('nextLvlBtn');
+      nextBtn.style.display = (currentLevelIdx >= 0 && currentLevelIdx < 9) ? 'block' : 'none';
+      document.getElementById('winSc').classList.remove('hidden');
+      document.getElementById('hud').classList.add('hidden');
+    }, 700);
+  }
+}
+
+// ── PARTICLES / FLOATS ──
+function spawnPart(x,y,color,n=10) {
+  for(let i=0;i<n;i++){
+    const a=(Math.PI*2/n)*i+Math.random()*.5, s=2+Math.random()*4;
+    particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,life:1,dec:.025+Math.random()*.02,r:2+Math.random()*3,color});
+  }
+}
+function showFloat(txt,x,y,color) {
+  floatTxts.push({txt,x,y,color,life:1,vy:-1.4});
+}
+function updateParts() {
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.1;p.life-=p.dec;
+    if(p.life<=0)particles.splice(i,1);
+  }
+  for(let i=floatTxts.length-1;i>=0;i--){
+    const f=floatTxts[i];f.y+=f.vy;f.life-=.025;
+    if(f.life<=0)floatTxts.splice(i,1);
+  }
+}
+
+// ── MEDALS ──
+function awardMedal(id) {
+  if(SAVE.medals.includes(id))return;
+  SAVE.medals.push(id);sv();
+  const m=MEDALS.find(x=>x.id===id);
+  if(m) showFloat(m.icon+' '+m.name, IW/2, IH/2-40, '#f5c842');
+}
+function checkMedalCoins(){if(SAVE.coins>=50)awardMedal('c50');if(SAVE.coins>=200)awardMedal('c200');}
+
+// ── INPUT ──
+const keys = {};
+let jumpConsumed = false;
+window.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if (state === 'playing' && !paused) {
+    if ((e.key === ' ' || e.key === 'ArrowUp') && !jumpConsumed) {
+      doJump(); jumpConsumed = true;
+    }
+    if (e.key === 'p' || e.key === 'P') togglePause();
+  }
+});
+window.addEventListener('keyup', e => {
+  keys[e.key] = false;
+  if (e.key === ' ' || e.key === 'ArrowUp') jumpConsumed = false;
+});
+gCv.addEventListener('pointerdown', () => {
+  if (state === 'playing' && !paused) doJump();
+});
+
+function doJump() {
+  if (P.onGround && !P.dead) {
+    P.vy = JUMP_VY;
+    P.onGround = false;
+    awardMedal('first');
+    spawnPart(P.x + P.w/2, P.y + P.h, '#f5c842', 5);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  DRAW — all in internal resolution, then scaled
+// ═══════════════════════════════════════════════════════════════
+const BIOME_COLORS = [
+  {skyT:'#0a1008',skyB:'#0d1208',gc:'#142a0c',gl:'#2a5a14',obstC:'#2e5a14'},
+  {skyT:'#04090f',skyB:'#070b10',gc:'#081422',gl:'#0e2840',obstC:'#1a4a6a'},
+  {skyT:'#120400',skyB:'#0e0300',gc:'#200c00',gl:'#3c1400',obstC:'#7a2000'},
+  {skyT:'#120818',skyB:'#0e0612',gc:'#200828',gl:'#441450',obstC:'#7a1868'},
+];
+const bgStars = [];
+for(let i=0;i<120;i++) bgStars.push({x:Math.random()*IW*3,y:Math.random()*IH,r:.3+Math.random()*1.1,a:.15+Math.random()*.65,sp:.03+Math.random()*.12});
+
+function drawAll() {
+  // ── Background canvas (no transform needed, just fill screen) ──
+  const bm = BIOME_COLORS[currentLevelDef ? currentLevelDef.bgBiome : 0];
+  bgX.clearRect(0, 0, screenW, screenH);
+  const g = bgX.createLinearGradient(0,0,0,screenH);
+  g.addColorStop(0, bm.skyT); g.addColorStop(1, bm.skyB);
+  bgX.fillStyle = g; bgX.fillRect(0,0,screenW,screenH);
+  // Stars in screen space
+  bgStars.forEach(s => {
+    if(state==='playing') s.x -= s.sp;
+    if(s.x < 0) s.x = IW*3;
+    const sx = (s.x % (screenW+200)) - 100;
+    const fa = s.a*(.6+.4*Math.sin(frame*.04+s.x*.01));
+    bgX.beginPath(); bgX.arc(sx, s.y*(screenH/IH), s.r, 0, Math.PI*2);
+    bgX.fillStyle = `rgba(255,240,190,${fa})`; bgX.fill();
+  });
+
+  // ── Game canvas: apply scale+offset transform ──
+  ctx.clearRect(0, 0, screenW, screenH);
+  ctx.save();
+  ctx.translate(offX, offY);
+  ctx.scale(scale, scale);
+
+  // Floor
+  const gg = ctx.createLinearGradient(0, GROUND_Y, 0, IH);
+  gg.addColorStop(0, bm.gc); gg.addColorStop(1, '#030201');
+  ctx.fillStyle = gg; ctx.fillRect(0, GROUND_Y, IW, IH - GROUND_Y);
+  ctx.strokeStyle = bm.gl; ctx.lineWidth = 2;
+  ctx.shadowColor = bm.gl; ctx.shadowBlur = 10;
+  ctx.beginPath(); ctx.moveTo(0, GROUND_Y); ctx.lineTo(IW, GROUND_Y); ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Ceiling bar
+  ctx.fillStyle = 'rgba(255,255,255,.025)'; ctx.fillRect(0, 0, IW, CEIL_Y);
+  ctx.strokeStyle = 'rgba(255,255,255,.07)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, CEIL_Y); ctx.lineTo(IW, CEIL_Y); ctx.stroke();
+
+  // ── Draw obstacles (shifted by camX) ──
+  for (const o of obstacles) {
+    const sx = o.x - camX; // screen x in internal space
+    if (sx > IW + TILE || sx + o.w < -TILE) continue;
+    drawObstacle(o, sx);
+  }
+
+  // Coins
+  for (const c of coinObjs) {
+    if (c.taken) continue;
+    const sx = c.x - camX;
+    if (sx < -20 || sx > IW + 20) continue;
+    drawCoin(sx, c.y, c.bob);
+  }
+
+  // Items
+  for (const it of itemObjs) {
+    if (it.taken) continue;
+    const sx = it.x - camX;
+    if (sx < -20 || sx > IW + 20) continue;
+    drawItem(sx, it.y, it.type);
+  }
+
+  // Player trail
+  // (skip for performance in internal space — just glow)
+
+  // Player
+  drawPlayer();
+
+  // Particles & floats
+  particles.forEach(p => {
+    ctx.save();
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r*p.life, 0, Math.PI*2);
+    ctx.fillStyle = p.color + Math.floor(p.life*200).toString(16).padStart(2,'0');
+    ctx.shadowColor = p.color; ctx.shadowBlur = 6; ctx.fill();
+    ctx.restore();
+  });
+  floatTxts.forEach(f => {
+    ctx.save(); ctx.globalAlpha = f.life;
+    ctx.font = "bold 18px 'Fredoka One'"; ctx.textAlign = 'center';
+    ctx.fillStyle = f.color; ctx.shadowColor = f.color; ctx.shadowBlur = 8;
+    ctx.fillText(f.txt, f.x, f.y);
+    ctx.textAlign = 'left'; ctx.restore();
+  });
+
+  // End marker
+  if (currentLevelDef) {
+    const endX = T(currentLevelDef.length) - camX;
+    if (endX > 0 && endX < IW + 100) {
+      ctx.save();
+      ctx.strokeStyle = '#f5c842'; ctx.lineWidth = 3;
+      ctx.shadowColor = '#f5c842'; ctx.shadowBlur = 16;
+      ctx.setLineDash([8, 6]);
+      ctx.beginPath(); ctx.moveTo(endX, CEIL_Y); ctx.lineTo(endX, GROUND_Y); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font = "bold 24px 'Fredoka One'";
+      ctx.fillStyle = '#f5c842'; ctx.textAlign = 'center';
+      ctx.fillText('🏁', endX, GROUND_Y - 30);
+      ctx.textAlign = 'left'; ctx.restore();
+    }
+  }
+
+  ctx.restore(); // end scale transform
+
+  // Progress bar (in screen space, below HUD)
+  if (currentLevelDef) {
+    const pct = Math.min(1, camX / (T(currentLevelDef.length) - IW + P.x + 200));
+    document.getElementById('progressBar').style.width = (pct * 100) + '%';
+  }
+}
+
+function drawObstacle(o, sx) {
+  const col = o.color || '#f5c842';
+  ctx.save();
+  ctx.shadowColor = col; ctx.shadowBlur = 8;
+  ctx.strokeStyle = col; ctx.lineWidth = 2;
+
+  if (o.type === 'spike') {
+    // Draw as triangles
+    const n = Math.max(1, Math.round(o.w / TILE));
+    const sw = o.w / n;
+    ctx.fillStyle = col + '99';
+    for (let i = 0; i < n; i++) {
+      ctx.beginPath();
+      ctx.moveTo(sx + i*sw,        o.y + o.h);
+      ctx.lineTo(sx + i*sw + sw/2, o.y + 2);
+      ctx.lineTo(sx + i*sw + sw,   o.y + o.h);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+    }
+  } else if (o.type === 'spikeCeil') {
+    const n = Math.max(1, Math.round(o.w / TILE));
+    const sw = o.w / n;
+    ctx.fillStyle = col + '99';
+    for (let i = 0; i < n; i++) {
+      ctx.beginPath();
+      ctx.moveTo(sx + i*sw,        o.y);
+      ctx.lineTo(sx + i*sw + sw/2, o.y + o.h - 2);
+      ctx.lineTo(sx + i*sw + sw,   o.y);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+    }
+  } else if (o.type === 'wall') {
+    ctx.fillStyle = col + '55';
+    ctx.fillRect(sx, o.y, o.w, o.h);
+    ctx.strokeRect(sx, o.y, o.w, o.h);
+    ctx.strokeStyle = col + '44'; ctx.lineWidth = 1;
+    for (let y = o.y + 12; y < o.y + o.h - 4; y += 18) {
+      ctx.beginPath(); ctx.moveTo(sx + 3, y); ctx.lineTo(sx + o.w - 3, y); ctx.stroke();
+    }
+  } else if (o.type === 'platform') {
+    ctx.shadowBlur = 12; ctx.fillStyle = col + '88';
+    ctx.beginPath(); ctx.roundRect(sx, o.y, o.w, o.h, 4); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.18)';
+    ctx.beginPath(); ctx.roundRect(sx + 3, o.y + 2, o.w - 6, 4, 2); ctx.fill();
+  } else if (o.type === 'movingV') {
+    ctx.fillStyle = col + '99';
+    ctx.beginPath(); ctx.roundRect(sx, o.y, o.w, o.h, 6); ctx.fill();
+    ctx.stroke();
+    ctx.shadowBlur = 16;
+    ctx.strokeStyle = col;
+    ctx.beginPath(); ctx.roundRect(sx+2, o.y+2, o.w-4, o.h-4, 4); ctx.stroke();
+  }
   ctx.restore();
 }
-function drawCoin(c,sx){
-  const bob=Math.sin(frame*.065+c.bob)*4;ctx.save();ctx.shadowColor='#f5c842';ctx.shadowBlur=12;
-  ctx.fillStyle='#f5c842';ctx.beginPath();ctx.arc(sx+7,c.y+bob,7.5,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#b87800';ctx.lineWidth=1.5;ctx.stroke();
-  ctx.fillStyle='#8a5500';ctx.font='bold 8px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('$',sx+7,c.y+bob+.5);
-  ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.restore();
+
+function drawCoin(sx, sy, bob) {
+  const b = Math.sin(frame * .065 + bob) * 3;
+  ctx.save();
+  ctx.shadowColor = '#f5c842'; ctx.shadowBlur = 10;
+  ctx.fillStyle = '#f5c842';
+  ctx.beginPath(); ctx.arc(sx + 8, sy + b + 8, 8, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#b87800'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = '#8a5500'; ctx.font = 'bold 9px sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('$', sx+8, sy+b+8.5);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.restore();
 }
-function drawItem(ip,sx){
-  const bob=Math.sin(frame*.07+ip.bob)*5,col=ip.it.color;
-  ctx.save();ctx.shadowColor=col;ctx.shadowBlur=18+Math.sin(frame*.08)*5;ctx.strokeStyle=col;ctx.fillStyle=col+'2a';ctx.lineWidth=2;
-  ctx.beginPath();for(let i=0;i<6;i++){const a=(Math.PI/3)*i-Math.PI/6+frame*.012,r=14;i===0?ctx.moveTo(sx+13+Math.cos(a)*r,ip.y+bob+13+Math.sin(a)*r):ctx.lineTo(sx+13+Math.cos(a)*r,ip.y+bob+13+Math.sin(a)*r);}
-  ctx.closePath();ctx.fill();ctx.stroke();ctx.font='14px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(ip.it.icon,sx+13,ip.y+bob+13);ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.restore();
+
+function drawItem(sx, sy, type) {
+  const bob = Math.sin(frame * .07) * 4;
+  const col = '#3de88a';
+  ctx.save();
+  ctx.shadowColor = col; ctx.shadowBlur = 16;
+  ctx.strokeStyle = col; ctx.fillStyle = col + '33'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const a = (Math.PI/3)*i - Math.PI/6 + frame*.01, r = 13;
+    i===0 ? ctx.moveTo(sx+13+Math.cos(a)*r, sy+bob+13+Math.sin(a)*r)
+           : ctx.lineTo(sx+13+Math.cos(a)*r, sy+bob+13+Math.sin(a)*r);
+  }
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.font = '13px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('🛡️', sx+13, sy+bob+13);
+  ctx.textAlign='left'; ctx.textBaseline='alphabetic'; ctx.restore();
 }
-function drawTrail(){P.tr.forEach((t,i)=>{const s=P.skin;ctx.beginPath();ctx.arc(t.x-camX,t.y,(P.w/2)*(1-i/P.tr.length)*.5,0,Math.PI*2);ctx.fillStyle=s.glow+Math.floor(t.a*150).toString(16).padStart(2,'0');ctx.fill();});}
-function drawPlayer(){
-  const cx=P.x+P.w/2,cy=P.y+P.h/2,sz=P.w/2,s=P.skin;
-  ctx.save();ctx.translate(cx,cy);ctx.rotate(P.ang);ctx.shadowColor=s.glow;ctx.shadowBlur=20;
-  if(P.sh){ctx.beginPath();ctx.arc(0,0,sz*1.75,0,Math.PI*2);ctx.strokeStyle='#3de88a';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='rgba(61,232,138,.07)';ctx.fill();}
-  if(P.inv&&Math.floor(frame/4)%2===0){ctx.beginPath();ctx.arc(0,0,sz*1.5,0,Math.PI*2);ctx.strokeStyle=s.glow+'88';ctx.lineWidth=1.5;ctx.stroke();}
-  ctx.beginPath();ctx.arc(0,0,sz,0,Math.PI*2);ctx.fillStyle=s.b;ctx.fill();
-  ctx.beginPath();ctx.arc(0,0,sz*.85,Math.PI*.75,Math.PI*1.65);ctx.strokeStyle=s.g+'cc';ctx.lineWidth=sz*.42;ctx.lineCap='round';ctx.stroke();ctx.lineCap='butt';
-  [[0,-sz*.42],[sz*.38,sz*.22],[-sz*.38,sz*.22],[sz*.1,sz*.52],[-sz*.1,-sz*.58]].forEach(([x,y])=>{ctx.beginPath();ctx.arc(x,y,sz*.13,0,Math.PI*2);ctx.fillStyle=s.ch;ctx.fill();});
-  ctx.beginPath();ctx.arc(0,0,sz,0,Math.PI*2);ctx.strokeStyle=s.g+'55';ctx.lineWidth=1.5;ctx.stroke();
-  ctx.shadowBlur=0;ctx.font=`${sz*.72}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText(P.vy<-4?'😮':P.og?'😊':'😄',0,2);ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.restore();
-}
-function drawBoss(){
-  ctx.save();ctx.translate(boss.x-camX+boss.w/2,boss.y+boss.h/2);ctx.rotate(Math.sin(boss.ang)*.12);
-  ctx.shadowColor=boss.type.color;ctx.shadowBlur=22;ctx.font=`${boss.w*.85}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText(boss.type.emoji,0,0);ctx.textAlign='left';ctx.textBaseline='alphabetic';
-  boss.projs.forEach(bp=>{ctx.font='15px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🍭',bp.x-(boss.x-camX+boss.w/2),bp.y-(boss.y+boss.h/2));ctx.textAlign='left';ctx.textBaseline='alphabetic';});
+
+function drawPlayer() {
+  const cx = P.x + P.w/2, cy = P.y + P.h/2, sz = P.w/2;
+  const s = P.skin;
+  ctx.save();
+  ctx.translate(cx, cy); ctx.rotate(P.angle);
+  ctx.shadowColor = s.glow; ctx.shadowBlur = 18;
+
+  // Death flash
+  if (P.dead && Math.floor(frame/4)%2===0) { ctx.globalAlpha = 0.3; }
+
+  if (P.shield) {
+    ctx.beginPath(); ctx.arc(0, 0, sz*1.7, 0, Math.PI*2);
+    ctx.strokeStyle = '#3de88a'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = 'rgba(61,232,138,.07)'; ctx.fill();
+  }
+
+  // Cookie body
+  ctx.beginPath(); ctx.arc(0, 0, sz, 0, Math.PI*2);
+  ctx.fillStyle = s.b; ctx.fill();
+  ctx.beginPath(); ctx.arc(0, 0, sz*.85, Math.PI*.75, Math.PI*1.65);
+  ctx.strokeStyle = s.g+'cc'; ctx.lineWidth = sz*.42; ctx.lineCap = 'round'; ctx.stroke(); ctx.lineCap = 'butt';
+  [[0,-sz*.42],[sz*.38,sz*.22],[-sz*.38,sz*.22],[sz*.1,sz*.52]].forEach(([x,y])=>{
+    ctx.beginPath(); ctx.arc(x,y,sz*.13,0,Math.PI*2); ctx.fillStyle=s.ch; ctx.fill();
+  });
+  ctx.beginPath(); ctx.arc(0,0,sz,0,Math.PI*2); ctx.strokeStyle=s.g+'55'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.font = `${sz*.72}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(P.vy < -3 ? '😮' : P.onGround ? '😊' : '😄', 0, 2);
+  ctx.textAlign='left'; ctx.textBaseline='alphabetic';
   ctx.restore();
 }
-function aabb(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
-function rects(ax,ay,aw,ah,bx,by,bw,bh){return ax<bx+bw&&ax+aw>bx&&ay<by+bh&&ay+ah>by;}
-function circRect(cx,cy,r,rx,ry,rw,rh){const nx=Math.max(rx,Math.min(cx,rx+rw)),ny=Math.max(ry,Math.min(cy,ry+rh));return(cx-nx)**2+(cy-ny)**2<r*r;}
-let last=0;
-function loop(ts){
-  const dt=Math.min((ts-last)/16.67,3);last=ts;frame++;
-  drawBG();
-  if(state==='playing'&&!paused){
-    camX+=getSpd()*dt;dist=camX/10;noDmgDist=dist;
-    if(frame%120===0){const cx2=camX-500;obs=obs.filter(o=>o.x>cx2);coins=coins.filter(c=>!c.taken||c.x>cx2);items=items.filter(i=>!i.taken||i.x>cx2);bgD=bgD.filter(d=>d.x-camX*.2>-200);}
-    maybeChunk();updP();checkCols();checkBiome();updParts();
-    if(bossOn)updBoss();else if(dist>=nextBoss&&!bossShowing){bossShowing=true;setTimeout(()=>{spawnBoss();bossShowing=false;},1800);}
-    checkMedals();
-    document.getElementById('hudDist').textContent=Math.floor(dist)+'m';
-    document.getElementById('distLabel').textContent=Math.floor(dist)+'m';
-    document.getElementById('progressBar').style.width=(Math.min(100,(dist%1000)/10))+'%';
+
+// ── HEARTS UI ──
+function updateHeartsUI() {
+  const row = document.getElementById('heartsRow');
+  row.innerHTML = '';
+  for (let i = 0; i < currentLevelDef.hearts; i++) {
+    const s = document.createElement('span');
+    s.className = 'heart' + (i >= hearts ? ' lost' : '');
+    s.textContent = '❤️'; row.appendChild(s);
   }
-  if(state==='playing'||state==='dead')drawGame();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MAIN LOOP
+// ═══════════════════════════════════════════════════════════════
+let lastT = 0;
+function loop(ts) {
+  frame++;
+  const dt = Math.min((ts - lastT) / 16.667, 2.5);
+  lastT = ts;
+
+  if (state === 'playing' && !paused && !P.dead && !levelComplete) {
+    physicsStep();
+    checkHazards();
+    checkPickups();
+    checkWin();
+  }
+  if (P.shieldT > 0) { P.shieldT--; if (!P.shieldT) P.shield = false; }
+  updateParts();
+
+  if (state === 'playing' || state === 'dead' || state === 'win') {
+    drawAll();
+  }
+
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
-function startGame(){
-  hideAll();state='playing';camX=0;dist=0;runCoins=0;hearts=maxH;gravDir=1;paused=false;noDmgDist=0;
-  P.y=GROUND-P.h-2;P.vy=0;P.og=true;P.jl=2;P.ang=0;P.tr=[];P.sh=false;P.sht=0;P.mg=false;P.mgt=0;P.inv=false;P.invt=0;P.sl=false;P.slt=0;
-  P.skin=SKINS.find(s=>s.id===SAVE.skin)||SKINS[0];
-  obs=[];coins=[];items=[];parts=[];floats=[];bgD=[];lastCX=0;
-  curBiome=0;nextBiome=600+Math.random()*300;bossOn=false;boss=null;bossIdx=0;nextBoss=1000;bossShowing=false;
-  runCount++;localStorage.setItem('kl_runs',runCount);
-  document.getElementById('hud').classList.remove('hidden');updHeartsUI();
-  document.getElementById('hudCoins').textContent='0';document.getElementById('itemPopup').style.display='none';
-  document.getElementById('biomeLabel').textContent=BIOMES[0].name;setTimeout(()=>document.getElementById('biomeLabel').textContent='',2500);
+
+// ═══════════════════════════════════════════════════════════════
+//  GAME FLOW
+// ═══════════════════════════════════════════════════════════════
+function startLevel(idx) {
+  hideAll();
+  currentLevelIdx = idx;
+  if (idx === -1) {
+    currentLevelDef = generateRandomLevel();
+  } else {
+    currentLevelDef = JSON.parse(JSON.stringify(LEVELS[idx])); // deep copy
+  }
+
+  // Build world
+  obstacles = buildObstacles(currentLevelDef);
+  coinObjs  = buildCoins(currentLevelDef);
+  itemObjs  = buildItems(currentLevelDef);
+  particles = []; floatTxts = [];
+
+  // Reset player
+  camX = 0;
+  P.x = 80; P.y = GROUND_Y - P.h - 2;
+  P.vy = 0; P.onGround = true;
+  P.dead = false; P.angle = 0;
+  P.shield = false; P.shieldT = 0;
+  P.skin = SKINS.find(s => s.id === SAVE.skin) || SKINS[0];
+
+  hearts = currentLevelDef.hearts;
+  runCoins = 0; tookHit = false; levelComplete = false;
+  paused = false;
+  startTime = Date.now();
+
+  document.getElementById('hud').classList.remove('hidden');
+  document.getElementById('hudLvl').textContent = idx === -1 ? '?' : idx + 1;
+  document.getElementById('hudCoins').textContent = '0';
+  document.getElementById('progressBar').style.width = '0%';
+  updateHeartsUI();
+
+  // Level name flash
+  const lbl = document.getElementById('lvlLabel');
+  lbl.textContent = idx === -1 ? '🎲 Náhodný Level' : `Level ${idx+1}: ${currentLevelDef.name}`;
+  lbl.classList.add('show');
+  setTimeout(() => lbl.classList.remove('show'), 2000);
+
+  state = 'playing';
 }
-function showMenu(){hideAll();state='menu';document.getElementById('menuScreen').classList.remove('hidden');document.getElementById('hud').classList.add('hidden');document.getElementById('menuCoins').textContent=SAVE.coins;document.getElementById('menuBest').textContent=Math.floor(SAVE.best)+'m';}
-function hideAll(){['menuScreen','shopScreen','medalsScreen','lbScreen','deathScreen'].forEach(id=>document.getElementById(id).classList.add('hidden'));}
-function showShop(){
-  hideAll();state='shop';document.getElementById('shopScreen').classList.remove('hidden');document.getElementById('shopCoins').textContent=SAVE.coins;
-  const grid=document.getElementById('shopGrid');grid.innerHTML='';
-  SKINS.forEach(sk=>{
-    const owned=SAVE.owned.includes(sk.id),selected=SAVE.skin===sk.id;
-    const card=document.createElement('div');card.className='skin-card'+(owned?' owned':'')+(selected?' selected':'');
-    const cv=document.createElement('canvas');cv.width=48;cv.height=48;drawSkinP(cv,sk);
-    const nm=document.createElement('div');nm.className='sn';nm.textContent=sk.name;
-    const pr=document.createElement('div');pr.className=owned?'so':'sp';pr.textContent=owned?(selected?'✔ Aktívny':'Vybrať'):'🪙 '+sk.price;
-    card.appendChild(cv);card.appendChild(nm);card.appendChild(pr);
-    card.onclick=()=>{if(owned){SAVE.skin=sk.id;sv();showShop();}else if(SAVE.coins>=sk.price){SAVE.coins-=sk.price;SAVE.owned.push(sk.id);SAVE.skin=sk.id;sv();showShop();}else alert('Málo koláčikov! 🪙');};
-    grid.appendChild(card);});
+
+function restartLevel() {
+  hideAll();
+  startLevel(currentLevelIdx);
 }
-function drawSkinP(canvas,sk){
-  const c=canvas.getContext('2d'),sz=18;c.clearRect(0,0,48,48);c.translate(24,24);
-  c.shadowColor=sk.glow;c.shadowBlur=10;c.beginPath();c.arc(0,0,sz,0,Math.PI*2);c.fillStyle=sk.b;c.fill();
-  c.beginPath();c.arc(0,0,sz*.85,Math.PI*.75,Math.PI*1.65);c.strokeStyle=sk.g+'cc';c.lineWidth=sz*.42;c.lineCap='round';c.stroke();c.lineCap='butt';
+
+function nextLevel() {
+  if (currentLevelIdx >= 0 && currentLevelIdx < 9) {
+    startLevel(currentLevelIdx + 1);
+  }
+}
+
+function togglePause() {
+  paused = !paused;
+  document.getElementById('pauseOv').classList.toggle('hidden', !paused);
+}
+
+// ── SCREENS ──
+function showMenu() {
+  hideAll(); state = 'menu';
+  document.getElementById('menuSc').classList.remove('hidden');
+  document.getElementById('hud').classList.add('hidden');
+  document.getElementById('menuCoins').textContent = SAVE.coins;
+  document.getElementById('menuBest').textContent = SAVE.done.length + '/10 levelov';
+}
+
+function showLevelSelect() {
+  hideAll(); state = 'levelSelect';
+  document.getElementById('hud').classList.add('hidden');
+  document.getElementById('pauseOv').classList.add('hidden');
+  document.getElementById('levelSc').classList.remove('hidden');
+  buildLevelGrid();
+}
+
+function buildLevelGrid() {
+  const grid = document.getElementById('levelGrid');
+  grid.innerHTML = '';
+  LEVELS.forEach((lv, i) => {
+    const unlocked = i === 0 || SAVE.done.includes(i - 1);
+    const done = SAVE.done.includes(i);
+    const stars = SAVE.stars[String(i)] || 0;
+    const card = document.createElement('div');
+    card.className = 'lvl-card' + (done?' done':'') + (!unlocked?' locked':'');
+    card.innerHTML = `
+      <div class="lvl-num" style="color:${lv.color}">${i+1}</div>
+      <div class="lvl-name">${lv.name}</div>
+      <div class="lvl-stars">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>`;
+    if (unlocked) card.onclick = () => startLevel(i);
+    grid.appendChild(card);
+  });
+  // Random card
+  const rnd = document.createElement('div');
+  rnd.className = 'lvl-card random-card';
+  rnd.innerHTML = `<div class="lvl-num">🎲</div><div class="lvl-name">Náhodný</div><div class="lvl-stars">???</div>`;
+  rnd.onclick = () => startLevel(-1);
+  grid.appendChild(rnd);
+}
+
+function showShop() {
+  hideAll(); state = 'shop';
+  document.getElementById('shopSc').classList.remove('hidden');
+  document.getElementById('shopCoins').textContent = SAVE.coins;
+  const grid = document.getElementById('shopGrid'); grid.innerHTML = '';
+  SKINS.forEach(sk => {
+    const owned = SAVE.owned.includes(sk.id);
+    const active = SAVE.skin === sk.id;
+    const card = document.createElement('div');
+    card.className = 'skin-card' + (owned?' owned':'') + (active?' active':'');
+    const cv = document.createElement('canvas'); cv.width=46; cv.height=46;
+    drawSkinPreview(cv, sk);
+    const nm = document.createElement('div'); nm.className='sk-name'; nm.textContent=sk.name;
+    const pr = document.createElement('div');
+    pr.className = owned ? 'sk-own' : 'sk-price';
+    pr.textContent = owned ? (active ? '✔ Aktívny' : 'Vybrať') : '🪙 '+sk.price;
+    card.appendChild(cv); card.appendChild(nm); card.appendChild(pr);
+    card.onclick = () => {
+      if (owned) { SAVE.skin = sk.id; sv(); showShop(); }
+      else if (SAVE.coins >= sk.price) { SAVE.coins -= sk.price; SAVE.owned.push(sk.id); SAVE.skin = sk.id; sv(); showShop(); }
+      else alert('Málo koláčikov! 🪙');
+    };
+    grid.appendChild(card);
+  });
+}
+
+function drawSkinPreview(canvas, sk) {
+  const c = canvas.getContext('2d'), sz = 18;
+  c.clearRect(0,0,46,46); c.translate(23,23);
+  c.shadowColor=sk.glow; c.shadowBlur=10;
+  c.beginPath(); c.arc(0,0,sz,0,Math.PI*2); c.fillStyle=sk.b; c.fill();
+  c.beginPath(); c.arc(0,0,sz*.85,Math.PI*.75,Math.PI*1.65);
+  c.strokeStyle=sk.g+'cc'; c.lineWidth=sz*.42; c.lineCap='round'; c.stroke(); c.lineCap='butt';
   [[0,-7.5],[6.8,4],[-6.8,4],[2,9.5]].forEach(([x,y])=>{c.beginPath();c.arc(x,y,sz*.13,0,Math.PI*2);c.fillStyle=sk.ch;c.fill();});
   c.beginPath();c.arc(0,0,sz,0,Math.PI*2);c.strokeStyle=sk.g+'55';c.lineWidth=1.5;c.stroke();
   c.shadowBlur=0;c.font='13px serif';c.textAlign='center';c.textBaseline='middle';c.fillText('😊',0,2);
 }
-function showMedals(){
-  hideAll();state='medals';document.getElementById('medalsScreen').classList.remove('hidden');
-  const grid=document.getElementById('medalsGrid');grid.innerHTML='';
-  MEDALS.forEach(m=>{const ul=SAVE.medals.includes(m.id);const card=document.createElement('div');card.className='medal-card '+(ul?'unlocked':'locked');card.innerHTML=`<div class="mi">${m.icon}</div><div class="mn">${m.name}</div><div class="md">${m.desc}</div>`;grid.appendChild(card);});
+
+function showMedals() {
+  hideAll(); state = 'medals';
+  document.getElementById('medalsSc').classList.remove('hidden');
+  const grid = document.getElementById('medalsGrid'); grid.innerHTML = '';
+  MEDALS.forEach(m => {
+    const ul = SAVE.medals.includes(m.id);
+    const card = document.createElement('div');
+    card.className = 'medal-card ' + (ul ? 'unlocked' : 'locked');
+    card.innerHTML = `<div class="m-icon">${m.icon}</div><div class="m-name">${m.name}</div><div class="m-desc">${m.desc}</div>`;
+    grid.appendChild(card);
+  });
 }
-function updLB(){const e=[...LB_BOTS.map(b=>({n:b.n,s:b.s})),{n:'TY 🍪',s:Math.floor(SAVE.best),me:true}].sort((a,b)=>b.s-a.s);localStorage.setItem('kl_lb',JSON.stringify(e));}
-function showLeaderboard(){
-  hideAll();state='lb';document.getElementById('lbScreen').classList.remove('hidden');
-  const e=JSON.parse(localStorage.getItem('kl_lb')||'[]');const list=document.getElementById('lbList');list.innerHTML='';
-  const tops=['🥇','🥈','🥉'];
-  e.slice(0,8).forEach((en,i)=>{const row=document.createElement('div');row.className='lb-row'+(en.me?' me':'');row.innerHTML=`<span class="lb-rank">${tops[i]||i+1}</span><span class="lb-name">${en.n}</span><span class="lb-score">${en.s}m</span>`;list.appendChild(row);});
+
+function hideAll() {
+  ['menuSc','levelSc','shopSc','medalsSc','deathSc','winSc'].forEach(id =>
+    document.getElementById(id).classList.add('hidden'));
+  document.getElementById('pauseOv').classList.add('hidden');
 }
-updLB();
-function buildSpecks(){
-  const wrap=document.getElementById('menuSpecks');wrap.innerHTML='';
-  const cols=['#f5c842','#ff8c00','#c87020','#ffe066','#d4900a','#ffb347'];
-  for(let i=0;i<30;i++){const el=document.createElement('div');el.className='speck';const sz=3+Math.random()*9;el.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;bottom:-20px;background:${cols[Math.floor(Math.random()*cols.length)]};animation-duration:${7+Math.random()*10}s;animation-delay:${-Math.random()*14}s;`;wrap.appendChild(el);}
+
+// ── MENU SPECKS ──
+function buildSpecks() {
+  const wrap = document.getElementById('specks'); wrap.innerHTML = '';
+  const cols = ['#f5c842','#ff8c00','#c87020','#ffe066','#d4900a'];
+  for(let i=0;i<28;i++){
+    const el=document.createElement('div'); el.className='speck';
+    const sz=3+Math.random()*9;
+    el.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;bottom:-10px;background:${cols[Math.floor(Math.random()*cols.length)]};animation-duration:${7+Math.random()*10}s;animation-delay:${-Math.random()*14}s;`;
+    wrap.appendChild(el);
+  }
 }
 buildSpecks();
+
+// INIT
 showMenu();
 </script>
 </body>
 </html>
-
